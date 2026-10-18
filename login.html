@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Simando Law — Sign In</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:        #0a1520;
+      --gold:        #c9a55c;
+      --gold-light:  #e0c080;
+      --gold-pale:   #f5e6c4;
+      --gold-dim:    rgba(201,165,92,0.09);
+      --gold-border: rgba(201,165,92,0.26);
+      --gold-border2:rgba(201,165,92,0.14);
+      --bg:          #060c13;
+      --bg2:         #08111a;
+      --surface:     #0c1826;
+      --surface2:    #091422;
+      --border:      #162033;
+      --border-soft: #1c2d3f;
+      --text:        #d8e4f0;
+      --text-muted:  #6b82a0;
+      --text-dim:    #344556;
+      --red:         #f87171;
+      --green:       #34d399;
+      --font-display:'Cormorant Garamond', Georgia, serif;
+      --font-body:   'DM Sans', system-ui, sans-serif;
+      --radius:      10px;
+      --radius-lg:   16px;
+      --shadow:      0 12px 48px rgba(0,0,0,0.6);
+      --shadow-gold: 0 4px 24px rgba(201,165,92,0.18);
+    }
+
+    html, body { height: 100%; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 14px;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .bg-layer {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    }
+    .bg-gradient {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 10%, rgba(201,165,92,0.06) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 80% at 80% 90%, rgba(10,21,32,0.8) 0%, transparent 70%),
+        linear-gradient(160deg, #060c13 0%, #08111a 50%, #060a10 100%);
+    }
+    .bg-grid {
+      position: absolute; inset: 0; opacity: 0.025;
+      background-image:
+        linear-gradient(rgba(201,165,92,0.5) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(201,165,92,0.5) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+    .bg-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      animation: orbFloat 12s ease-in-out infinite;
+    }
+    .bg-orb-1 {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(201,165,92,0.07) 0%, transparent 70%);
+      top: -200px; left: -100px;
+      animation-delay: 0s;
+    }
+    .bg-orb-2 {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(10,21,32,0.9) 0%, transparent 70%);
+      bottom: -150px; right: -100px;
+      animation-delay: -6s;
+    }
+    @keyframes orbFloat {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33%       { transform: translate(30px, -20px) scale(1.05); }
+      66%       { transform: translate(-20px, 15px) scale(0.97); }
+    }
+
+    .card {
+      position: relative; z-index: 1;
+      width: 100%; max-width: 420px;
+      margin: 1rem;
+      background: linear-gradient(145deg, rgba(12,24,38,0.95) 0%, rgba(8,17,26,0.98) 100%);
+      border: 1px solid var(--gold-border2);
+      border-radius: 20px;
+      padding: 38px 34px;
+      box-shadow: var(--shadow), 0 0 0 1px rgba(201,165,92,0.05), inset 0 1px 0 rgba(201,165,92,0.08);
+      animation: cardReveal 0.7s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    @keyframes cardReveal {
+      from { opacity: 0; transform: translateY(24px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .card::before, .card::after {
+      content: '';
+      position: absolute;
+      width: 20px; height: 20px;
+      border-color: var(--gold);
+      border-style: solid;
+      opacity: 0.4;
+    }
+    .card::before { top: 16px; left: 16px; border-width: 1px 0 0 1px; border-radius: 4px 0 0 0; }
+    .card::after  { bottom: 16px; right: 16px; border-width: 0 1px 1px 0; border-radius: 0 0 4px 0; }
+
+    .logo-wrap {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 24px;
+    }
+    .logo-icon {
+      width: 40px; height: 40px;
+      background: var(--gold-dim);
+      border: 1px solid var(--gold-border);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+    }
+    .logo-text { display: flex; flex-direction: column; line-height: 1; }
+    .logo-name {
+      font-family: var(--font-display);
+      font-size: 18px; font-weight: 600;
+      color: var(--gold-pale);
+      letter-spacing: 0.04em;
+    }
+    .logo-sub {
+      font-size: 9px; font-weight: 500;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--text-muted); margin-top: 3px;
+    }
+
+    .heading {
+      margin-bottom: 20px;
+    }
+    .heading h1 {
+      font-family: var(--font-display);
+      font-size: 28px; font-weight: 500;
+      color: var(--text);
+      letter-spacing: 0.01em;
+      line-height: 1.2;
+    }
+    .heading p {
+      font-size: 13px; color: var(--text-muted);
+      margin-top: 6px; line-height: 1.5;
+    }
+
+    .form-group { margin-bottom: 14px; }
+
+    label {
+      display: block;
+      font-size: 11px; font-weight: 500;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 7px;
+    }
+
+    .input-wrap { position: relative; }
+    .input-icon {
+      position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+      font-size: 15px; opacity: 0.45; pointer-events: none;
+    }
+    .input-toggle {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer;
+      font-size: 15px; opacity: 0.4; padding: 4px;
+      color: var(--text-muted); transition: opacity 0.2s;
+    }
+    .input-toggle:hover { opacity: 0.8; }
+
+    input[type="email"], input[type="password"], input[type="text"] {
+      width: 100%;
+      background: rgba(6,12,19,0.7);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 14px;
+      padding: 11px 40px 11px 38px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+    input:focus {
+      border-color: var(--gold-border);
+      background: rgba(201,165,92,0.03);
+      box-shadow: 0 0 0 3px rgba(201,165,92,0.07);
+    }
+    input.err { border-color: rgba(248,113,113,0.5); }
+    input::placeholder { color: var(--text-dim); }
+
+    .btn-primary {
+      width: 100%;
+      background: linear-gradient(135deg, #c9a55c 0%, #b8913f 100%);
+      border: none; border-radius: var(--radius);
+      color: #060c13;
+      font-family: var(--font-body);
+      font-size: 14px; font-weight: 600;
+      letter-spacing: 0.03em;
+      padding: 12px;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+      box-shadow: var(--shadow-gold);
+    }
+    .btn-primary:hover:not(:disabled) {
+      opacity: 0.92;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 28px rgba(201,165,92,0.28);
+    }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
+
+    .error-banner {
+      background: rgba(248,113,113,0.08);
+      border: 1px solid rgba(248,113,113,0.25);
+      border-radius: var(--radius);
+      color: #fca5a5;
+      font-size: 13px;
+      padding: 10px 14px;
+      margin-bottom: 16px;
+      display: none;
+      animation: shake 0.4s ease;
+    }
+    .error-banner.show { display: block; }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%       { transform: translateX(-6px); }
+      40%       { transform: translateX(6px); }
+      60%       { transform: translateX(-4px); }
+      80%       { transform: translateX(4px); }
+    }
+
+    .footer-links {
+      margin-top: 18px; text-align: center;
+      font-size: 12px; color: var(--text-muted);
+    }
+    .footer-links a {
+      color: var(--gold); text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--gold-light); }
+
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(6,12,19,0.3);
+      border-top-color: #060c13;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: inline-block; vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── 2FA 6-DIGIT CODE INPUT BOXES ── */
+    .otp-container {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin: 20px 0 24px;
+    }
+    .otp-input {
+      width: 44px !important;
+      height: 52px !important;
+      padding: 0 !important;
+      text-align: center !important;
+      font-size: 22px !important;
+      font-weight: 700 !important;
+      color: var(--gold-light) !important;
+      background: var(--surface2) !important;
+      border: 1.5px solid var(--border-soft) !important;
+      border-radius: 10px !important;
+      outline: none !important;
+      transition: all 0.2s !important;
+    }
+    .otp-input:focus {
+      border-color: var(--gold) !important;
+      background: rgba(201, 165, 92, 0.08) !important;
+      box-shadow: 0 0 0 3px rgba(201, 165, 92, 0.2) !important;
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<div class="bg-layer">
+  <div class="bg-gradient"></div>
+  <div class="bg-grid"></div>
+  <div class="bg-orb bg-orb-1"></div>
+  <div class="bg-orb bg-orb-2"></div>
+</div>
+
+<div class="card">
+  <div class="logo-wrap">
+    <div class="logo-icon">⚖️</div>
+    <div class="logo-text">
+      <span class="logo-name">Simando Law</span>
+      <span class="logo-sub">Case Management System</span>
+    </div>
+  </div>
+
+  <!-- STEP 1: Standard Password Login -->
+  <div id="step-login">
+    <div class="heading">
+      <h1>Welcome back</h1>
+      <p>Sign in with your @gmail.com or @outlook.com address.</p>
+    </div>
+
+    <div id="error-banner" class="error-banner"></div>
+
+    <div class="form-group">
+      <label for="inp-email">Email address</label>
+      <div class="input-wrap">
+        <span class="input-icon">✉</span>
+        <input type="email" id="inp-email" placeholder="attorney@gmail.com or @outlook.com" autocomplete="email"/>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="inp-password">Password</label>
+      <div class="input-wrap">
+        <span class="input-icon">🔒</span>
+        <input type="password" id="inp-password" placeholder="••••••••" autocomplete="current-password"/>
+        <button class="input-toggle" onclick="togglePassword()" id="pw-toggle" title="Show/hide password">👁</button>
+      </div>
+    </div>
+
+    <!-- MANDATORY TERMS & PRIVACY CHECKMARK -->
+    <div style="margin: 16px 0 20px; display: flex; align-items: flex-start; gap: 10px; text-align: left; background: rgba(201,165,92,0.04); border: 1px solid var(--border-soft); border-radius: 9px; padding: 10px 12px;">
+      <input type="checkbox" id="cb-agree-terms" onchange="toggleTermsAgreement()" style="accent-color: var(--gold); width: 17px; height: 17px; margin-top: 1px; cursor: pointer; flex-shrink: 0;"/>
+      <label for="cb-agree-terms" style="font-size: 11.5px; color: var(--text-muted); text-transform: none; letter-spacing: normal; cursor: pointer; margin-bottom: 0; line-height: 1.5; font-weight: 400;">
+        I have read and agree to Simando Law's 
+        <a href="terms-of-service.html" target="_blank" style="color: var(--gold); text-decoration: underline; font-weight: 600;">Terms of Service</a> &amp; 
+        <a href="privacy-policy.html" target="_blank" style="color: var(--gold); text-decoration: underline; font-weight: 600;">Privacy Policy</a>.
+      </label>
+    </div>
+
+    <button class="btn-primary" id="email-btn" onclick="handleEmailAuth()" disabled style="opacity: 0.5; cursor: not-allowed;">
+      <span id="email-btn-text">Sign In</span>
+    </button>
+
+    <div class="footer-links">
+      <a href="#" onclick="handleForgotPassword(); return false;">Forgot password?</a>
+    </div>
+  </div>
+
+  <!-- STEP 2: 2FA TOTP Verification -->
+  <div id="step-2fa" class="hidden">
+    <div class="heading">
+      <h1>Two-Factor Security</h1>
+      <p id="tfa-prompt-sub">Enter the 6-digit verification code from your Microsoft Authenticator or Google Authenticator app.</p>
+    </div>
+
+    <div id="tfa-error-banner" class="error-banner"></div>
+
+    <div id="tfa-code-panel">
+      <div class="otp-container">
+        <input type="text" class="otp-input" maxlength="1" pattern="\d*" inputmode="numeric" id="otp-1"/>
+        <input type="text" class="otp-input" maxlength="1" pattern="\d*" inputmode="numeric" id="otp-2"/>
+        <input type="text" class="otp-input" maxlength="1" pattern="\d*" inputmode="numeric" id="otp-3"/>
+        <input type="text" class="otp-input" maxlength="1" pattern="\d*" inputmode="numeric" id="otp-4"/>
+        <input type="text" class="otp-input" maxlength="1" pattern="\d*" inputmode="numeric" id="otp-5"/>
+        <input type="text" class="otp-input" maxlength="1" pattern="\d*" inputmode="numeric" id="otp-6"/>
+      </div>
+      <button class="btn-primary" id="btn-verify-tfa" onclick="verifyTwoFactorCode()">
+        <span id="btn-verify-tfa-text">Verify &amp; Sign In</span>
+      </button>
+      <div style="margin-top:16px;text-align:center">
+        <a href="#" onclick="toggleBackupCodeInput(true); return false;" style="color:var(--gold);font-size:12px;text-decoration:underline">Lost phone? Use a backup code</a>
+      </div>
+    </div>
+
+    <!-- Backup Recovery Code Input -->
+    <div id="tfa-backup-panel" class="hidden">
+      <div class="form-group">
+        <label>8-Character Backup Code</label>
+        <input type="text" id="inp-backup-code" placeholder="e.g. a8f1-9c02" style="text-align:center;letter-spacing:2px;font-weight:700;padding:12px"/>
+      </div>
+      <button class="btn-primary" id="btn-verify-backup" onclick="verifyBackupRecoveryCode()">
+        <span>Verify Recovery Code</span>
+      </button>
+      <div style="margin-top:16px;text-align:center">
+        <a href="#" onclick="toggleBackupCodeInput(false); return false;" style="color:var(--gold);font-size:12px;text-decoration:underline">← Back to Authenticator app code</a>
+      </div>
+    </div>
+
+    <div style="margin-top:20px;text-align:center;border-top:1px solid rgba(201,165,92,0.12);padding-top:14px">
+      <a href="#" onclick="cancelTwoFactor(); return false;" style="color:var(--text-muted);font-size:12px">← Cancel and return to login</a>
+    </div>
+  </div>
+
+</div>
+
+<!-- Firebase & Web Crypto TOTP Engine -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getAuth,
+    onAuthStateChanged,
+    signInWithEmailAndPassword,
+    sendPasswordResetEmail,
+    signOut
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import {
+    getFirestore,
+    doc,
+    getDoc,
+    collection,
+    getDocs,
+    updateDoc,
+    setDoc
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  // Obfuscated runtime credentials
+  const _fbKeyChunks = ["QUl6YVN5", "RElEczIxRzJ3V3ktV2Q3Mndi", "LWlXTk1DVHkwX0tsQURv"];
+  const _fbSenderChunks = ["NjI1OTU5", "NjA4ODE3"];
+  const _fbAppIdHex = "MGM1NzFkOTRmNzIwNjU4ZTk3YTQ1MA==";
+
+  const firebaseConfig = {
+    apiKey: _fbKeyChunks.map(c => atob(c)).join(""),
+    authDomain: ["simando", "firebaseapp", "com"].join("."),
+    projectId: ["si", "man", "do"].join(""),
+    storageBucket: ["simando", "firebasestorage", "app"].join("."),
+    messagingSenderId: _fbSenderChunks.map(c => atob(c)).join(""),
+    appId: ["1", _fbSenderChunks.map(c => atob(c)).join(""), "web", atob(_fbAppIdHex)].join(":")
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  let pendingUser = null;
+  let pendingProfileDocId = null;
+  let pendingProfileData = null;
+
+  // SPECIFIC DOMAIN VALIDATOR (Requires @gmail.com or @outlook.com)
+  function isValidEmail(email) {
+    return /^[^\s@]+@(gmail\.com|outlook\.com)$/i.test(String(email || "").trim());
+  }
+
+  window.toggleTermsAgreement = function() {
+    const cb = document.getElementById("cb-agree-terms");
+    const btn = document.getElementById("email-btn");
+    if (!cb || !btn) return;
+
+    if (cb.checked) {
+      btn.disabled = false;
+      btn.style.opacity = "1";
+      btn.style.cursor = "pointer";
+    } else {
+      btn.disabled = true;
+      btn.style.opacity = "0.5";
+      btn.style.cursor = "not-allowed";
+    }
+  };
+
+  async function fetchUserProfile(user) {
+    if (!user) return { docId: null, data: {} };
+
+    try {
+      const directRef = doc(db, "profiles", user.uid);
+      const directSnap = await getDoc(directRef);
+      if (directSnap.exists()) {
+        return { docId: directSnap.id, data: directSnap.data() };
+      }
+    } catch (e) { /* continue */ }
+
+    try {
+      const pSnap = await getDocs(collection(db, "profiles"));
+      const userEmail = (user.email || "").toLowerCase();
+      const matchedDoc = pSnap.docs.find(d => {
+        const data = d.data();
+        return (data.ownerUid === user.uid) || 
+               (data.email && data.email.toLowerCase() === userEmail);
+      });
+
+      if (matchedDoc) {
+        return { docId: matchedDoc.id, data: matchedDoc.data() };
+      }
+    } catch (e) {
+      console.warn("Collection query notice:", e);
+    }
+
+    return { docId: null, data: {} };
+  }
+
+  function base32Decode(base32) {
+    const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+    let cleaned = base32.toUpperCase().replace(/=+$/, "");
+    let bits = 0;
+    let value = 0;
+    let output = [];
+
+    for (let i = 0; i < cleaned.length; i++) {
+      const idx = alphabet.indexOf(cleaned.charAt(i));
+      if (idx === -1) continue;
+      value = (value << 5) | idx;
+      bits += 5;
+      if (bits >= 8) {
+        output.push((value >>> (bits - 8)) & 255);
+        bits -= 8;
+      }
+    }
+    return new Uint8Array(output);
+  }
+
+  async function generateTOTPCode(secretBase32, timeStepOffset = 0) {
+    const keyBytes = base32Decode(secretBase32);
+    const key = await crypto.subtle.importKey(
+      "raw",
+      keyBytes,
+      { name: "HMAC", hash: "SHA-1" },
+      false,
+      ["sign"]
+    );
+
+    const epoch = Math.floor(Date.now() / 1000);
+    const timeStep = Math.floor(epoch / 30) + timeStepOffset;
+
+    const buffer = new ArrayBuffer(8);
+    const view = new DataView(buffer);
+    view.setUint32(4, timeStep, false);
+
+    const hmacResult = await crypto.subtle.sign("HMAC", key, buffer);
+    const hmacBytes = new Uint8Array(hmacResult);
+
+    const offset = hmacBytes[hmacBytes.length - 1] & 0xf;
+    const binary =
+      ((hmacBytes[offset] & 0x7f) << 24) |
+      ((hmacBytes[offset + 1] & 0xff) << 16) |
+      ((hmacBytes[offset + 2] & 0xff) << 8) |
+      (hmacBytes[offset + 3] & 0xff);
+
+    const code = binary % 1000000;
+    return String(code).padStart(6, "0");
+  }
+
+  async function verifyTOTP(token, secretBase32) {
+    for (const offset of [0, -1, 1]) {
+      const valid = await generateTOTPCode(secretBase32, offset);
+      if (token === valid) return true;
+    }
+    return false;
+  }
+
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      try {
+        const { docId, data: profData } = await fetchUserProfile(user);
+
+        if (profData.twoFactorEnabled) {
+          let secData = null;
+          try {
+            const secSnap = await getDoc(doc(db, "profiles", docId, "private", "security"));
+            if (secSnap.exists()) {
+              secData = secSnap.data();
+            }
+          } catch (e) { /* fallback to profile data if unmigrated */ }
+
+          const secretKey = secData?.twoFactorSecret || profData.twoFactorSecret;
+          const backupCodes = secData?.twoFactorBackupCodes || profData.twoFactorBackupCodes || [];
+
+          if (secretKey) {
+            const isSessionVerified = sessionStorage.getItem("simando_2fa_verified") === "true";
+            if (isSessionVerified) {
+              window.location.replace("index.html");
+            } else {
+              pendingUser = user;
+              pendingProfileDocId = docId;
+              pendingProfileData = {
+                ...profData,
+                twoFactorSecret: secretKey,
+                twoFactorBackupCodes: backupCodes
+              };
+              document.getElementById("step-login").classList.add("hidden");
+              document.getElementById("step-2fa").classList.remove("hidden");
+              setTimeout(() => clearEnteredOTP(), 100);
+            }
+          } else {
+            window.location.replace("index.html");
+          }
+        } else {
+          window.location.replace("index.html");
+        }
+      } catch (err) {
+        console.warn("2FA check notice:", err);
+        window.location.replace("index.html");
+      }
+    }
+  });
+
+  window.togglePassword = function() {
+    const inp = document.getElementById("inp-password");
+    inp.type = inp.type === "password" ? "text" : "password";
+  };
+
+  function showError(msg, elId = "error-banner") {
+    const el = document.getElementById(elId);
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.add("show");
+    el.style.animation = "none";
+    requestAnimationFrame(() => { el.style.animation = "shake 0.4s ease"; });
+  }
+
+  function clearErrors() {
+    ["error-banner", "tfa-error-banner"].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove("show");
+    });
+  }
+
+  function setLoading(loading, btnId = "email-btn", textId = "email-btn-text", defaultText = "Sign In") {
+    const btn = document.getElementById(btnId);
+    const btnText = document.getElementById(textId);
+    if (btn) btn.disabled = loading;
+    if (btnText) {
+      btnText.innerHTML = loading ? `<span class="spinner"></span>` : defaultText;
+    }
+  }
+
+  function friendlyError(code) {
+    const map = {
+      "auth/user-not-found":       "No account found with this email.",
+      "auth/wrong-password":       "Incorrect password. Please try again.",
+      "auth/invalid-credential":   "Incorrect email or password.",
+      "auth/invalid-email":        "Please enter a valid @gmail.com or @outlook.com address.",
+      "auth/too-many-requests":    "Too many attempts. Please wait a moment and try again.",
+      "auth/network-request-failed": "Network error. Check your connection.",
+    };
+    return map[code] || "Something went wrong. Please try again.";
+  }
+
+  const otpInputs = Array.from(document.querySelectorAll(".otp-input"));
+  otpInputs.forEach((input, index) => {
+    input.addEventListener("input", (e) => {
+      const val = e.target.value;
+      if (val.length === 1 && index < otpInputs.length - 1) {
+        otpInputs[index + 1].focus();
+      }
+      if (getEnteredOTP().length === 6) {
+        verifyTwoFactorCode();
+      }
+    });
+
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Backspace" && !input.value && index > 0) {
+        otpInputs[index - 1].focus();
+      }
+      if (e.key === "Enter") {
+        verifyTwoFactorCode();
+      }
+    });
+
+    input.addEventListener("paste", (e) => {
+      e.preventDefault();
+      const pasteData = (e.clipboardData || window.clipboardData).getData("text").trim();
+      if (/^\d{6}$/.test(pasteData)) {
+        pasteData.split("").forEach((char, i) => {
+          if (otpInputs[i]) otpInputs[i].value = char;
+        });
+        otpInputs[5].focus();
+        verifyTwoFactorCode();
+      }
+    });
+  });
+
+  function getEnteredOTP() {
+    return otpInputs.map(i => i.value).join("");
+  }
+
+  function clearEnteredOTP() {
+    otpInputs.forEach(i => i.value = "");
+    if (otpInputs[0]) otpInputs[0].focus();
+  }
+
+  window.toggleBackupCodeInput = function(showBackup) {
+    clearErrors();
+    document.getElementById("tfa-code-panel").classList.toggle("hidden", showBackup);
+    document.getElementById("tfa-backup-panel").classList.toggle("hidden", !showBackup);
+    if (showBackup) {
+      document.getElementById("inp-backup-code")?.focus();
+    } else {
+      clearEnteredOTP();
+    }
+  };
+
+  window.cancelTwoFactor = async function() {
+    sessionStorage.removeItem("simando_2fa_verified");
+    await signOut(auth);
+    pendingUser = null;
+    pendingProfileDocId = null;
+    pendingProfileData = null;
+    document.getElementById("step-2fa").classList.add("hidden");
+    document.getElementById("step-login").classList.remove("hidden");
+    clearErrors();
+  };
+
+  window.handleEmailAuth = async function() {
+    clearErrors();
+
+    const agreeCb = document.getElementById("cb-agree-terms");
+    if (!agreeCb || !agreeCb.checked) {
+      showError("Please check the box to agree to the Terms of Service & Privacy Policy before signing in.");
+      return;
+    }
+
+    sessionStorage.removeItem("simando_2fa_verified");
+
+    const email    = document.getElementById("inp-email").value.trim();
+    const password = document.getElementById("inp-password").value;
+
+    if (!email || !password) {
+      showError("Please enter both email and password.");
+      return;
+    }
+
+    if (!isValidEmail(email)) {
+      showError("Please enter a valid @gmail.com or @outlook.com address.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      const { docId, data: profData } = await fetchUserProfile(user);
+
+      if (profData.twoFactorEnabled) {
+        let secData = null;
+        try {
+          const secSnap = await getDoc(doc(db, "profiles", docId, "private", "security"));
+          if (secSnap.exists()) secData = secSnap.data();
+        } catch (e) { /* continue */ }
+
+        const secretKey = secData?.twoFactorSecret || profData.twoFactorSecret;
+        const backupCodes = secData?.twoFactorBackupCodes || profData.twoFactorBackupCodes || [];
+
+        if (secretKey) {
+          pendingUser = user;
+          pendingProfileDocId = docId;
+          pendingProfileData = {
+            ...profData,
+            twoFactorSecret: secretKey,
+            twoFactorBackupCodes: backupCodes
+          };
+
+          document.getElementById("step-login").classList.add("hidden");
+          document.getElementById("step-2fa").classList.remove("hidden");
+          setLoading(false);
+          setTimeout(() => clearEnteredOTP(), 100);
+        } else {
+          sessionStorage.setItem("simando_2fa_verified", "true");
+          window.location.replace("index.html");
+        }
+      } else {
+        sessionStorage.setItem("simando_2fa_verified", "true");
+        window.location.replace("index.html");
+      }
+    } catch (err) {
+      setLoading(false);
+      showError(friendlyError(err.code));
+    }
+  };
+
+  window.verifyTwoFactorCode = async function() {
+    clearErrors();
+    const code = getEnteredOTP();
+    if (code.length !== 6) {
+      showError("Please enter all 6 digits.", "tfa-error-banner");
+      return;
+    }
+
+    setLoading(true, "btn-verify-tfa", "btn-verify-tfa-text", "Verify & Sign In");
+
+    try {
+      const isValid = await verifyTOTP(code, pendingProfileData.twoFactorSecret);
+      if (isValid) {
+        sessionStorage.setItem("simando_2fa_verified", "true");
+        window.location.replace("index.html");
+      } else {
+        setLoading(false, "btn-verify-tfa", "btn-verify-tfa-text", "Verify & Sign In");
+        showError("Invalid 6-digit code. Check your Authenticator app and try again.", "tfa-error-banner");
+        clearEnteredOTP();
+      }
+    } catch (err) {
+      setLoading(false, "btn-verify-tfa", "btn-verify-tfa-text", "Verify & Sign In");
+      showError("Verification error: " + err.message, "tfa-error-banner");
+    }
+  };
+
+  window.verifyBackupRecoveryCode = async function() {
+    clearErrors();
+    const entered = (document.getElementById("inp-backup-code")?.value || "").trim().toLowerCase().replace(/[^a-z0-9]/g, "");
+    
+    if (!entered) {
+      showError("Please enter your backup code.", "tfa-error-banner");
+      return;
+    }
+
+    const availableCodes = pendingProfileData.twoFactorBackupCodes || [];
+    const matchIndex = availableCodes.findIndex(c => c.toLowerCase().replace(/[^a-z0-9]/g, "") === entered);
+
+    if (matchIndex >= 0) {
+      availableCodes.splice(matchIndex, 1);
+      try {
+        if (pendingProfileDocId) {
+          await setDoc(doc(db, "profiles", pendingProfileDocId, "private", "security"), {
+            twoFactorBackupCodes: availableCodes
+          }, { merge: true });
+        }
+      } catch (e) { /* continue sign-in */ }
+
+      sessionStorage.setItem("simando_2fa_verified", "true");
+      window.location.replace("index.html");
+    } else {
+      showError("Invalid or already used backup code.", "tfa-error-banner");
+    }
+  };
+
+  window.handleForgotPassword = async function() {
+    const email = document.getElementById("inp-email").value.trim();
+    if (!email) {
+      showError("Enter your email address above first.");
+      return;
+    }
+    if (!isValidEmail(email)) {
+      showError("Please enter a valid @gmail.com or @outlook.com address.");
+      return;
+    }
+    
+    try {
+      await sendPasswordResetEmail(auth, email);
+      showError("✓ Password reset email sent — check your inbox.", "error-banner");
+      const banner = document.getElementById("error-banner");
+      banner.style.background = "rgba(52,211,153,0.08)";
+      banner.style.borderColor = "rgba(52,211,153,0.25)";
+      banner.style.color = "#6ee7b7";
+    } catch (err) {
+      showError(friendlyError(err.code));
+    }
+  };
+
+  document.addEventListener("keydown", e => {
+    if (e.key === "Enter" && !document.getElementById("step-login").classList.contains("hidden")) {
+      window.handleEmailAuth();
+    }
+  });
+</script>
+</body>
+</html>

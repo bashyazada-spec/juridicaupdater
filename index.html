@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Simando Law — Case Manager</title>
+
+<!-- Content Security Policy Header -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://apis.google.com https://accounts.google.com https://*.googleapis.com https://*.firebaseio.com https://*.firebase.com https://*.cloudfunctions.net https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://docs.google.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://accounts.google.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://*.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: https:; frame-src 'self' https://docs.google.com https://drive.google.com https://accounts.google.com; connect-src 'self' https://*.gstatic.com https://www.gstatic.com https://*.googleapis.com https://*.firebaseio.com https://*.cloudfunctions.net https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://accounts.google.com;">
+
+<!-- 1. Instant 0ms Device Redirector (Executes before Firebase loads) -->
+<script src="js/redirect.js"></script>
+
+<!-- 2. Firebase Initialization, QRCode CDN, Bootstrap Icons & Desktop Stylesheet -->
+<script type="module" src="js/firebase-init.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+<link rel="stylesheet" href="css/desktop.css"/>
+<style>
+  /* ── SYSTEM STATUS INDICATOR STYLES (PERFECTLY ALIGNED) ── */
+  @keyframes pulseGreen { 0% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.7); } 70% { box-shadow: 0 0 0 7px rgba(52, 211, 153, 0); } 100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); } }
+  @keyframes pulseAmber { 0% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.7); } 70% { box-shadow: 0 0 0 7px rgba(251, 191, 36, 0); } 100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0); } }
+  @keyframes pulseRed { 0% { box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.7); } 70% { box-shadow: 0 0 0 7px rgba(248, 113, 113, 0); } 100% { box-shadow: 0 0 0 0 rgba(248, 113, 113, 0); } }
+
+  .status-pill { 
+    display: inline-flex; 
+    align-items: center; 
+    justify-content: center;
+    gap: 7px; 
+    background: rgba(255,255,255,0.04); 
+    border: 1px solid var(--border-soft, #1c2d3f); 
+    border-radius: 20px; 
+    padding: 0 12px; 
+    height: 32px;
+    font-size: 11.5px; 
+    font-weight: 700; 
+    cursor: pointer; 
+    transition: all 0.2s; 
+    user-select: none; 
+    margin-left: 4px;
+    line-height: 1;
+    vertical-align: middle;
+    box-sizing: border-box;
+  }
+  .status-pill:hover { border-color: var(--gold-border); background: rgba(201,165,92,0.08); }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; display: inline-block; }
+  .status-dot.healthy { background: var(--green); animation: pulseGreen 2s infinite; }
+  .status-dot.warning { background: var(--amber); animation: pulseAmber 2s infinite; }
+  .status-dot.danger { background: var(--red); animation: pulseRed 2s infinite; }
+
+  .diagnostic-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px; }
+  .diagnostic-item-left { display: flex; align-items: center; gap: 12px; }
+  .diag-icon { font-size: 18px; width: 28px; text-align: center; }
+  .diag-name { font-weight: 700; font-size: 13px; color: var(--text); }
+  .diag-sub { font-size: 11px; color: var(--text-muted); }
+  .badge-pass { background: rgba(52,211,153,0.15); color: var(--green); border: 1px solid rgba(52,211,153,0.3); }
+  .badge-warn { background: rgba(251,191,36,0.15); color: var(--amber); border: 1px solid rgba(251,191,36,0.3); }
+  .badge-fail { background: rgba(248,113,113,0.15); color: var(--red); border: 1px solid rgba(248,113,113,0.3); }
+
+  .btn-doc { background: #4285f4; color: #fff; font-weight: 600; }
+  .btn-doc:hover { background: #3367d6; }
+
+  /* ── ONBOARDING SETUP MODAL STYLES ── */
+  .onboarding-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 14px;
+    transition: all 0.25s ease;
+  }
+  .onboarding-card.completed {
+    border-color: rgba(52,211,153,0.35);
+    background: rgba(52,211,153,0.03);
+  }
+  .onboarding-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .onboarding-card-title {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .onboarding-status-tag {
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .onboarding-status-tag.pending {
+    background: rgba(251,191,36,0.15);
+    color: var(--amber);
+  }
+  .onboarding-status-tag.active {
+    background: rgba(52,211,153,0.15);
+    color: var(--green);
+  }
+  .ob-qr-tabs {
+    display: flex;
+    background: var(--surface3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2px;
+    margin-bottom: 10px;
+    gap: 2px;
+  }
+  .ob-qr-tab-btn {
+    flex: 1;
+    text-align: center;
+    padding: 5px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .ob-qr-tab-btn.active {
+    background: var(--surface);
+    color: var(--gold-light);
+    font-weight: 700;
+    border: 1px solid var(--gold-border);
+  }
+  .ob-qr-box {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--surface3);
+    border: 1px solid var(--border-soft);
+    border-radius: 10px;
+    padding: 12px;
+  }
+  .ob-qr-img {
+    background: #fff;
+    padding: 8px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .ob-otp-input {
+    width: 100%;
+    background: var(--surface);
+    border: 1.5px solid var(--border-soft);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 5px;
+    text-align: center;
+    color: var(--gold-light);
+    outline: none;
+    margin-top: 8px;
+    box-sizing: border-box;
+  }
+  .ob-otp-input:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px var(--gold-dim);
+  }
+</style>
+</head>
+<body>
+
+<!-- Persistent Floating Hamburger Toggle -->
+<button id="floating-sidebar-btn" class="hamburger-toggle-btn" onclick="toggleSidebar()" title="Toggle Sidebar Navigation">
+  <i class="bi bi-list"></i>
+</button>
+
+<!-- Toast Alert -->
+<div id="toast"></div>
+
+<!-- Config warning banner -->
+<div id="config-banner">
+  <i class="bi bi-exclamation-triangle-fill" style="color:var(--amber);margin-right:6px"></i> <strong>Firebase not connected.</strong> Data is stored in memory only and will be lost on refresh.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SECURITY & GOOGLE DRIVE ONBOARDING POPUP MODAL
+     Appears on sign in if 2FA or Google Drive is not connected
+     ═══════════════════════════════════════════════════════════════ -->
+<div id="onboarding-modal" class="modal-overlay hidden" style="z-index: 10015;">
+  <div class="modal-box" style="max-width: 500px; padding: 26px 22px; position: relative;">
+    
+    <!-- Close / Dismiss Button -->
+    <button onclick="dismissOnboardingModal()" style="position:absolute;top:14px;right:14px;background:none;border:none;color:var(--text-dim);font-size:20px;cursor:pointer;line-height:1;padding:4px;" title="Remind me later"><i class="bi bi-x-lg"></i></button>
+
+    <div style="text-align: center; margin-bottom: 18px;">
+      <div style="font-size:36px;color:var(--gold);line-height:1;margin-bottom:6px" id="ob-modal-icon"><i class="bi bi-shield-lock-fill"></i></div>
+      <div style="font-family:var(--font-display);font-size:24px;font-weight:700;color:var(--gold-pale)" id="ob-modal-title">Account Security &amp; Setup</div>
+      <div style="font-size:12px;color:var(--text-muted);line-height:1.5;margin-top:4px" id="ob-modal-sub">
+        To maintain strict attorney-client privilege and document storage, please complete the required security setup below.
+      </div>
+    </div>
+
+    <!-- Section 1: Two-Factor Authentication (Microsoft Authenticator) -->
+    <div class="onboarding-card" id="ob-card-2fa">
+      <div class="onboarding-card-header">
+        <div class="onboarding-card-title">
+          <i class="bi bi-phone" style="color:var(--gold)"></i> 1. Two-Factor Authentication (2FA)
+        </div>
+        <span class="onboarding-status-tag pending" id="ob-tag-2fa"><i class="bi bi-clock"></i> Action Needed</span>
+      </div>
+
+      <div id="ob-content-2fa-body">
+        <!-- QR Toggle Tabs -->
+        <div class="ob-qr-tabs">
+          <button class="ob-qr-tab-btn active" id="tab-ob-pairing-qr" type="button" onclick="switchOnboardingQrType('pairing')">
+            <i class="bi bi-key-fill"></i> Pair Account (Scan in App)
+          </button>
+          <button class="ob-qr-tab-btn" id="tab-ob-app-qr" type="button" onclick="switchOnboardingQrType('app_link')">
+            <i class="bi bi-download"></i> Get Microsoft Authenticator
+          </button>
+        </div>
+
+        <!-- View A: Pairing QR Code (Scan inside Authenticator) -->
+        <div id="ob-view-pairing-qr">
+          <div class="ob-qr-box">
+            <div class="ob-qr-img" id="ob-qr-pairing-container"></div>
+            <div style="font-size:11.5px;color:var(--text-muted);line-height:1.45">
+              <strong style="color:var(--text)">Scan inside Microsoft Authenticator:</strong><br/>
+              Open the app &gt; tap <strong>(+) Add</strong> &gt; <strong>Work or personal</strong> &gt; scan this code to link account.
+              <div id="ob-pairing-secret-key" style="font-family:monospace;font-size:10px;color:var(--gold-light);margin-top:4px;word-break:break-all"></div>
+            </div>
+          </div>
+
+          <div style="margin-top:10px">
+            <input type="text" class="ob-otp-input" id="ob-otp-input" placeholder="Enter 6-digit code" maxlength="6" inputmode="numeric"/>
+          </div>
+
+          <button class="btn btn-primary" id="btn-ob-activate-2fa" type="button" onclick="onboardingActivate2FA()" style="width:100%;margin-top:8px">
+            <i class="bi bi-shield-check"></i> Verify &amp; Activate 2FA
+          </button>
+        </div>
+
+        <!-- View B: App Download Link QR (Scan with Phone Camera) -->
+        <div id="ob-view-app-qr" style="display:none">
+          <div class="ob-qr-box">
+            <div class="ob-qr-img" id="ob-qr-applink-container"></div>
+            <div style="font-size:11.5px;color:var(--text-muted);line-height:1.45">
+              <strong style="color:var(--text)">Scan with Phone Camera:</strong><br/>
+              Direct link to download <strong>Microsoft Authenticator</strong> on iOS or Android.
+              <div style="margin-top:6px">
+                <a href="https://aka.ms/authapp" target="_blank" rel="noopener noreferrer" style="color:var(--gold);text-decoration:underline;font-weight:600;font-size:11px">
+                  Or click here to open download page <i class="bi bi-box-arrow-up-right"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-ghost" type="button" onclick="switchOnboardingQrType('pairing')" style="width:100%;margin-top:8px;font-size:12px;border:1px solid var(--border)">
+            ← Done installing? Go to Pair Account
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Section 2: Google Account & Drive Storage -->
+    <div class="onboarding-card" id="ob-card-drive">
+      <div class="onboarding-card-header">
+        <div class="onboarding-card-title">
+          <i class="bi bi-google" style="color:var(--gold)"></i> <span id="ob-drive-title-text">2. Google Account &amp; Drive Storage</span>
+        </div>
+        <span class="onboarding-status-tag pending" id="ob-tag-drive"><i class="bi bi-clock"></i> Action Needed</span>
+      </div>
+
+      <div style="font-size:12px;color:var(--text-muted);line-height:1.45;margin-bottom:10px">
+        Required for uploading court filings, client documents, and syncing trial calendar deadlines directly to your Drive.
+      </div>
+
+      <button class="btn btn-primary" id="btn-ob-connect-drive" type="button" onclick="onboardingConnectDrive()" style="width:100%">
+        <i class="bi bi-google"></i> Connect Google Account
+      </button>
+    </div>
+
+    <!-- Dismiss / Remind Later Option -->
+    <div style="display:flex;justify-content:center;margin-top:6px">
+      <button class="btn btn-ghost" type="button" onclick="dismissOnboardingModal()" style="font-size:11.5px;padding:6px;width:auto">
+        Remind Me Later / Continue to Dashboard
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- Universal Action Confirmation Modal -->
+<div id="universal-confirm-modal" class="modal-overlay hidden" style="z-index: 10008;" onclick="if(event.target===this)closeConfirmModal()">
+  <div class="modal-box" style="max-width: 440px; text-align: center;">
+    <div id="ucm-icon" style="font-size: 38px; margin-bottom: 12px; line-height: 1; color: var(--gold);"><i class="bi bi-shield-check"></i></div>
+    <div id="ucm-title" style="font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 8px;">Confirm Action</div>
+    <div id="ucm-body" style="font-size: 13px; color: var(--text-muted); line-height: 1.55; margin-bottom: 22px;">Are you sure you want to proceed?</div>
+    <div style="display: flex; gap: 12px; justify-content: center;">
+      <button class="btn btn-secondary" type="button" onclick="closeConfirmModal()">Cancel</button>
+      <button class="btn btn-primary" type="button" id="ucm-confirm-btn">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- Discard Case Changes Confirmation Modal -->
+<div id="discard-case-modal" class="modal-overlay hidden" style="z-index: 10010;" onclick="if(event.target===this)cancelDiscardCase()">
+  <div class="modal-box" style="max-width: 420px; text-align: center;">
+    <div style="font-size:36px;margin-bottom:8px;color:var(--amber)"><i class="bi bi-exclamation-octagon-fill"></i></div>
+    <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px">Discard Unsaved Changes?</div>
+    <div style="font-size:13px;color:var(--text-muted);line-height:1.5;margin-bottom:20px">
+      You have unsaved case information, court hearings, or attached files. Leaving now will discard your progress.
+    </div>
+    <div style="display:flex;gap:12px;justify-content:center">
+      <button class="btn btn-secondary" type="button" onclick="cancelDiscardCase()">Continue Editing</button>
+      <button class="btn btn-danger" type="button" onclick="confirmDiscardCase()">Discard &amp; Leave</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete confirm modal -->
+<div id="delete-modal" class="modal-overlay hidden">
+  <div class="modal-box">
+    <div style="text-align:center;margin-bottom:8px;font-size:32px;color:var(--red)"><i class="bi bi-trash3-fill"></i></div>
+    <div id="del-title" style="font-size:18px;font-weight:700;color:var(--text);text-align:center;margin-bottom:8px">Delete Case?</div>
+    <div id="del-body" style="font-size:13px;color:var(--text-muted);text-align:center;margin-bottom:8px;line-height:1.6">This action cannot be undone.</div>
+    <div style="font-size:12px;color:var(--text-dim);text-align:center;margin-bottom:4px">
+      Type <strong id="del-confirm-target-text" style="color:var(--red)">DELETE</strong> to confirm
+    </div>
+    
+    <input type="text" id="del-confirm-input" oninput="checkDeleteInput()" placeholder="Type DELETE" 
+           style="width:100%;text-align:center;font-weight:700;letter-spacing:2px;margin:16px 0;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:9px;padding:12px 14px;box-sizing:border-box;outline:none;font-size:15px;" autocomplete="off"/>
+    
+    <div id="del-input-err" class="field-err hidden" style="text-align:center;margin-bottom:12px">You must type the verification exactly</div>
+    <div style="display:flex;gap:12px;justify-content:center">
+      <button class="btn btn-ghost" type="button" onclick="closeDeleteModal()">Cancel</button>
+      <button class="btn btn-danger" type="button" id="del-confirm-btn" onclick="executeDelete()" disabled style="opacity:0.5;cursor:not-allowed">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- System Diagnostic Modal -->
+<div id="diagnostic-modal" class="modal-overlay hidden" style="z-index: 10009;" onclick="if(event.target===this)closeDiagnosticModal()">
+  <div class="modal-box" style="max-width: 500px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:12px">
+      <div style="font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px">
+        <i class="bi bi-activity" style="color:var(--gold)"></i> System Health &amp; Diagnostics
+      </div>
+      <button onclick="closeDiagnosticModal()" style="background:none;border:none;color:var(--text-dim);font-size:20px;cursor:pointer"><i class="bi bi-x-lg"></i></button>
+    </div>
+
+    <div id="diagnostic-items-list">
+      <div class="diagnostic-item">
+        <div class="diagnostic-item-left">
+          <div class="diag-icon" style="color:var(--gold)"><i class="bi bi-broadcast-pin"></i></div>
+          <div>
+            <div class="diag-name">Network &amp; Courtroom Connection</div>
+            <div class="diag-sub" id="diag-network-sub">Active internet connection detected</div>
+          </div>
+        </div>
+        <span class="badge badge-pass" id="diag-network-badge">Online</span>
+      </div>
+
+      <div class="diagnostic-item">
+        <div class="diagnostic-item-left">
+          <div class="diag-icon" style="color:var(--gold)"><i class="bi bi-database-check"></i></div>
+          <div>
+            <div class="diag-name">Cloud Firestore Sync</div>
+            <div class="diag-sub" id="diag-db-sub">Real-time listeners active (Long Polling)</div>
+          </div>
+        </div>
+        <span class="badge badge-pass" id="diag-db-badge">Connected</span>
+      </div>
+
+      <div class="diagnostic-item">
+        <div class="diagnostic-item-left">
+          <div class="diag-icon" style="color:var(--gold)"><i class="bi bi-cloud-check-fill"></i></div>
+          <div>
+            <div class="diag-name">Google Drive Storage Space</div>
+            <div class="diag-sub" id="diag-drive-sub">OAuth token valid · Case folder linked</div>
+          </div>
+        </div>
+        <span class="badge badge-pass" id="diag-drive-badge">Linked</span>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:20px;border-top:1px solid var(--border);padding-top:14px">
+      <button class="btn btn-secondary btn-sm" onclick="updateWorkspaceStatus(true)"><i class="bi bi-arrow-clockwise"></i> Re-run Health Check</button>
+      <button class="btn btn-ghost btn-sm" onclick="closeDiagnosticModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Google Account Mandatory Connection Modal Popup -->
+<div id="drive-warning-modal" class="modal-overlay hidden" style="z-index: 10003;">
+  <div class="modal-box" style="max-width: 420px; text-align: center;">
+    <div style="font-size:36px;margin-bottom:8px;color:var(--gold)"><i class="bi bi-cloud-arrow-up-fill"></i></div>
+    <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px">Google Account Required</div>
+    <div style="font-size:13px;color:var(--text-muted);line-height:1.5;margin-bottom:20px">
+      A connected Google Account is required to manage cases, store client court documents, and synchronize deadlines. Please authorize your Google Account to proceed.
+    </div>
+    <div style="display:flex;gap:12px;justify-content:center">
+      <button class="btn btn-ghost" type="button" onclick="closeDriveWarningModal()">Cancel</button>
+      <button class="btn btn-primary" id="drive-modal-connect-btn" type="button" onclick="connectDriveDirectly()"><i class="bi bi-google"></i> Connect Google Account</button>
+    </div>
+  </div>
+</div>
+
+<!-- Set Availability Modal -->
+<div id="busy-modal" class="modal-overlay hidden" style="z-index: 10004;" onclick="if(event.target===this)closeBusyModal()"></div>
+
+<!-- Date Events & Schedule Details Popup Modal -->
+<div id="date-schedule-modal" class="modal-overlay hidden" style="z-index: 10006;" onclick="if(event.target===this)closeDateScheduleModal()">
+  <div class="modal-box" style="max-width: 520px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:12px">
+      <div style="font-size:17px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px" id="dsm-title">
+        <i class="bi bi-calendar3" style="color:var(--gold)"></i> Schedule Details
+      </div>
+      <button onclick="closeDateScheduleModal()" style="font-size:18px;color:var(--text-dim);background:none;border:none;cursor:pointer;padding:0 4px;line-height:1" title="Close"><i class="bi bi-x-lg"></i></button>
+    </div>
+
+    <!-- Live Event Cards with Single-Owner Editable Description -->
+    <div id="dsm-events-list" style="max-height:420px;overflow-y:auto;padding-right:4px"></div>
+  </div>
+</div>
+
+<!-- Two-Factor Authentication Setup Modal -->
+<div id="tfa-setup-modal" class="modal-overlay hidden" style="z-index: 10007;">
+  <div class="modal-box" style="max-width: 480px; text-align: center;">
+    <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:6px;display:flex;align-items:center;justify-content:center;gap:8px">
+      <i class="bi bi-shield-lock-fill" style="color:var(--gold)"></i> Two-Factor Authentication
+    </div>
+    <div style="font-size:13px;color:var(--text-muted);margin-bottom:16px;line-height:1.5">
+      Scan this QR code with <strong>Google Authenticator</strong>, <strong>Microsoft Authenticator</strong>, or <strong>Apple Passwords</strong>.
+    </div>
+
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;background:#ffffff;padding:16px;border-radius:12px;margin:0 auto 14px;width:fit-content">
+      <div id="tfa-setup-qrcode"></div>
+    </div>
+
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:16px;text-align:center">
+      <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px">Manual Entry Key</div>
+      <div id="tfa-setup-secret-key" style="font-family:monospace;font-size:13px;font-weight:700;color:var(--gold-light);margin-top:2px;letter-spacing:2px"></div>
+    </div>
+
+    <div style="margin-bottom:16px;text-align:center">
+      <div style="font-size:11.5px;font-weight:700;color:var(--text);margin-bottom:6px">Backup Recovery Codes (Save these safely)</div>
+      <div id="tfa-setup-backup-list" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:11px;color:var(--gold-light);max-width:320px;margin:0 auto"></div>
+    </div>
+
+    <div style="margin-bottom:20px;text-align:center">
+      <label class="field-label" style="text-align:center">Confirm 6-Digit Code from App *</label>
+      <input type="text" class="field-input" id="tfa-setup-verify-code" placeholder="e.g. 123456" maxlength="6" style="text-align:center;font-size:20px;font-weight:700;letter-spacing:6px;max-width:240px;margin:0 auto"/>
+    </div>
+
+    <div style="display:flex;gap:12px;justify-content:center">
+      <button class="btn btn-ghost" onclick="closeTwoFactorSetupModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmAndEnableTwoFactor()"><i class="bi bi-shield-check"></i> Verify &amp; Activate 2FA</button>
+    </div>
+  </div>
+</div>
+
+<!-- Share Case Modal -->
+<div id="share-modal" class="modal-overlay hidden" style="z-index:10000">
+  <div class="modal-box" style="max-width:480px">
+    <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px;display:flex;align-items:center;gap:8px">
+      <i class="bi bi-people-fill" style="color:var(--gold)"></i> Share Case Access
+    </div>
+    <div style="font-size:13px;color:var(--text-muted);margin-bottom:16px;line-height:1.5">
+      Select associate attorneys to grant full editing permissions for this case file.
+    </div>
+    <div id="share-modal-list" style="max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;margin-bottom:20px;padding-right:4px"></div>
+    <div style="display:flex;gap:12px;justify-content:flex-end">
+      <button class="btn btn-ghost" onclick="closeShareModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveShareSettings()"><i class="bi bi-check2"></i> Save Permissions</button>
+    </div>
+  </div>
+</div>
+
+<!-- File preview modal -->
+<div id="file-preview-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);align-items:center;justify-content:center;flex-direction:column">
+  <div style="position:absolute;top:0;left:0;right:0;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,0.5);backdrop-filter:blur(8px)">
+    <div id="fpm-title" style="font-size:14px;font-weight:600;color:#fff;max-width:70%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <a id="fpm-download" download style="font-size:12px;color:#c9a84c;text-decoration:none;padding:6px 14px;border:1px solid #c9a84c;border-radius:6px;font-weight:600"><i class="bi bi-download"></i> Download</a>
+      <button onclick="closeFilePreview()" style="background:transparent;border:none;color:#fff;font-size:24px;cursor:pointer;line-height:1;padding:0 4px"><i class="bi bi-x-lg"></i></button>
+    </div>
+  </div>
+  <div id="fpm-body" style="margin-top:56px;width:100%;height:calc(100vh - 56px);overflow:auto;display:flex;align-items:center;justify-content:center"></div>
+</div>
+
+<!-- Google Calendar Event Detail Modal -->
+<div id="calendar-event-modal" class="modal-overlay hidden" style="z-index: 10001;">
+  <div class="modal-box" style="max-width: 500px;">
+    <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:8px" id="cem-title">
+      <i class="bi bi-calendar-event" style="color:var(--gold)"></i> Event Details
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:24px">
+      <div>
+        <div style="font-size:10px;color:var(--text-dim);letter-spacing:1.5px;text-transform:uppercase;font-weight:600">Time &amp; Date</div>
+        <div id="cem-time" style="font-size:14px;color:var(--text);margin-top:2px"></div>
+      </div>
+      <div>
+        <div style="font-size:10px;color:var(--text-dim);letter-spacing:1.5px;text-transform:uppercase;font-weight:600">Location / Venue</div>
+        <div id="cem-location" style="font-size:14px;color:var(--text);margin-top:2px"></div>
+      </div>
+      <div>
+        <div style="font-size:10px;color:var(--text-dim);letter-spacing:1.5px;text-transform:uppercase;font-weight:600">Details / Description</div>
+        <div id="cem-desc" style="font-size:13px;color:var(--text-muted);line-height:1.6;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;max-height:180px;overflow-y:auto;white-space:pre-wrap;margin-top:2px"></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:12px;justify-content:flex-end">
+      <button class="btn btn-ghost" onclick="closeCalendarModal()">Close</button>
+      <a id="cem-link" class="btn btn-primary" href="#" target="_blank"><i class="bi bi-box-arrow-up-right"></i> Open in Google Calendar</a>
+    </div>
+  </div>
+</div>
+
+<!-- Main App -->
+<div id="app">
+
+  <!-- ══════ SIDEBAR (ADJUSTED LOGO WITH ZERO CLIPPING) ══════ -->
+  <div id="sidebar">
+    <div class="logo-wrap">
+      <svg class="logo-img" viewBox="0 0 380 95" xmlns="http://www.w3.org/2000/svg">
+        <g transform="translate(20, 14)">
+          <path d="M6 14 L32 3 L58 14 Z" fill="#c9a55c" opacity="0.95"/>
+          <line x1="2" y1="18" x2="62" y2="18" stroke="#c9a55c" stroke-width="2"/>
+          <line x1="14" y1="22" x2="14" y2="54" stroke="#ffffff" stroke-width="2.5"/>
+          <line x1="23" y1="22" x2="23" y2="54" stroke="#c9a55c" stroke-width="2"/>
+          <line x1="32" y1="20" x2="32" y2="56" stroke="#c9a55c" stroke-width="3"/>
+          <line x1="41" y1="22" x2="41" y2="54" stroke="#c9a55c" stroke-width="2"/>
+          <line x1="50" y1="22" x2="50" y2="54" stroke="#ffffff" stroke-width="2.5"/>
+          <line x1="6" y1="58" x2="58" y2="58" stroke="#c9a55c" stroke-width="2"/>
+          <rect x="2" y="61" width="60" height="5" rx="1" fill="#c9a55c" opacity="0.9"/>
+        </g>
+        <text x="100" y="40" font-family="'Cormorant Garamond', Georgia, serif" font-size="30" font-weight="700" letter-spacing="4" fill="#ffffff">SIMANDO</text>
+        <text x="102" y="63" font-family="'Cormorant Garamond', Georgia, serif" font-size="17" font-weight="600" letter-spacing="6" fill="#c9a55c">LAW FIRM</text>
+        <text x="102" y="82" font-family="'DM Sans', sans-serif" font-size="7.5" font-weight="500" letter-spacing="3" fill="#ffffff" opacity="0.85">EST. 2026 · LEGAL COUNSEL</text>
+      </svg>
+      <div class="logo-sub">Case Management System</div>
+    </div>
+
+    <div style="flex:1">
+      <div class="nav-section">Overview</div>
+      <button class="nav-btn" data-nav="dashboard" onclick="navTo('dashboard')" title="Dashboard"><i class="bi bi-columns-gap" style="color:var(--gold)"></i>&nbsp;&nbsp;<span class="nav-label">Dashboard</span></button>
+      <button class="nav-btn" data-nav="calendar" onclick="navTo('calendar')" title="Schedule / Calendar"><i class="bi bi-calendar3" style="color:var(--gold)"></i>&nbsp;&nbsp;<span class="nav-label">Schedule / Calendar</span></button>
+      <button class="nav-btn" data-nav="mydrive" onclick="navTo('mydrive')" title="Firm Drive"><i class="bi bi-folder2-open" style="color:var(--gold)"></i>&nbsp;&nbsp;<span class="nav-label">Firm Drive</span></button>
+      
+      <div class="nav-section">Clients &amp; Team</div>
+      <button class="nav-btn" data-nav="profiles" onclick="navTo('profiles')" title="Attorneys"><i class="bi bi-people" style="color:var(--gold)"></i>&nbsp;&nbsp;<span class="nav-label">Attorneys</span></button>
+      
+      <div class="nav-section">Litigation</div>
+      <button class="nav-btn" data-nav="allcases" onclick="navTo('allcases')" title="All Cases"><i class="bi bi-briefcase" style="color:var(--gold)"></i>&nbsp;&nbsp;<span class="nav-label">All Cases</span></button>
+      
+      <div class="nav-section">System</div>
+      <button class="nav-btn" data-nav="myprofile" onclick="navTo('myprofile')" title="My Settings"><i class="bi bi-gear" style="color:var(--gold)"></i>&nbsp;&nbsp;<span class="nav-label">My Settings</span></button>
+
+      <div id="admin-sidebar-section" style="display:none">
+        <div class="nav-section">Administration</div>
+        <button class="nav-btn" onclick="window.location.assign('admin.html')" title="Admin Console" style="color:var(--gold-light) !important;font-weight:600"><i class="bi bi-shield-lock-fill" style="color:var(--gold)"></i>&nbsp;&nbsp;<span class="nav-label">Admin Console</span></button>
+      </div>
+    </div>
+    
+    <!-- Sidebar Footer -->
+    <div class="sidebar-footer">
+      <div class="nav-section">Account &amp; Actions</div>
+
+      <div id="sidebar-user-chip" class="nav-btn" onclick="navTo('myprofile')" style="cursor:pointer;padding:10px 24px" title="My Profile"></div>
+
+      <button class="nav-btn" onclick="openAddCase()" title="Add Case">
+        <i class="bi bi-plus-circle" style="color:var(--gold)"></i>&nbsp;&nbsp;<span class="nav-label">Add Case</span>
+      </button>
+
+      <div class="nav-btn" style="justify-content:space-between;cursor:default;">
+        <span class="nav-label" style="display:flex;align-items:center;gap:12px">
+          Display Mode
+        </span>
+        <div class="theme-switch" onclick="toggleTheme()" title="Toggle dark/light mode" role="button" aria-label="Toggle theme">
+          <div class="theme-switch-track">
+            <span class="theme-switch-icon theme-switch-moon"><i class="bi bi-moon-stars-fill" style="color:var(--gold)"></i></span>
+            <span class="theme-switch-icon theme-switch-sun"><i class="bi bi-sun-fill" style="color:var(--amber)"></i></span>
+            <div class="theme-switch-thumb"></div>
+          </div>
+        </div>
+      </div>
+
+      <button class="nav-btn nav-btn-signout" onclick="handleLogout()" title="Sign Out">
+        <i class="bi bi-box-arrow-right" style="color:var(--red);font-size:15px;margin-right:2px"></i>
+        <span class="nav-label">Sign Out</span>
+      </button>
+
+      <div style="padding:14px 24px 6px;font-size:10px;color:rgba(255,255,255,0.7);line-height:1.6;text-align:left" class="nav-label">
+        Simando Law v5.2<br>
+        <a href="privacy-policy.html" target="_blank" style="color:var(--gold);text-decoration:underline">Privacy Policy</a> · <a href="terms-of-service.html" target="_blank" style="color:var(--gold);text-decoration:underline">Terms of Service</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════ MAIN ══════ -->
+  <div id="main">
+
+    <!-- ── TOP-RIGHT DOCK: CAPSULE + DOCKED ACTION BUTTONS ── -->
+    <div id="top-hdr-actions">
+      
+      <!-- Top Capsule -->
+      <div class="top-action-capsule">
+        <button onclick="window._chat ? window._chat.toggleDock(event) : null" class="top-capsule-btn" title="Messages / Conversations">
+          <i class="bi bi-chat-dots-fill" style="color:var(--gold-light)"></i>
+          <span id="chat-hdr-badge" class="chat-badge hidden top-capsule-badge">0</span>
+        </button>
+
+        <div class="top-capsule-divider"></div>
+
+        <div style="position:relative">
+          <button onclick="toggleNotifDropdown()" class="top-capsule-btn" title="Notifications">
+            <i class="bi bi-bell-fill" style="color:var(--gold-light)"></i>
+            <span id="global-notif-badge" class="badge top-capsule-badge" style="display:none">0</span>
+          </button>
+
+          <div id="notif-dropdown" class="hidden">
+            <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--surface2)">
+              <span style="font-size:13px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px"><i class="bi bi-bell" style="color:var(--gold)"></i> Notifications</span>
+              <button onclick="markAllNotificationsAsRead()" style="font-size:11px;color:var(--gold);background:none;border:none;cursor:pointer;font-weight:600">Mark all read</button>
+            </div>
+            <div id="notifications-list" style="overflow-y:auto;max-height:350px;padding:10px"></div>
+          </div>
+        </div>
+
+        <div class="top-capsule-divider"></div>
+        
+        <!-- STATUS PILL INDICATOR -->
+        <div class="status-pill" onclick="openDiagnosticModal()" title="View System Health &amp; Diagnostics">
+          <span class="status-dot healthy" id="status-indicator-dot"></span>
+          <span id="status-indicator-text" style="color:var(--green)">Workspace Active</span>
+        </div>
+      </div>
+
+      <!-- Action Button Docked Below Capsule for All Cases -->
+      <div class="top-action-slot" id="slot-allcases-action" style="display:none">
+        <button class="btn btn-primary" onclick="openAddCase()"><i class="bi bi-plus-circle-fill"></i> New Case</button>
+      </div>
+
+      <!-- Action Button Docked Below Capsule for Attorney Profiles -->
+      <div class="top-action-slot" id="slot-profiles-action" style="display:none">
+        <div class="view-mode-toggle" style="display:flex;background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:3px;box-shadow:0 4px 14px rgba(0,0,0,0.3)">
+          <button id="btn-view-tile" class="btn btn-sm btn-secondary active" onclick="setProfilesViewMode('tile')" style="padding:4px 10px;font-size:12px"><i class="bi bi-grid-fill"></i> Tile View</button>
+          <button id="btn-view-list" class="btn btn-sm btn-ghost" onclick="setProfilesViewMode('list')" style="padding:4px 10px;font-size:12px"><i class="bi bi-list-ul"></i> List View</button>
+        </div>
+      </div>
+
+      <!-- Action Button Docked Below Capsule for Firm Drive -->
+      <div class="top-action-slot" id="slot-mydrive-action" style="display:none">
+        <a id="mydrive-open-native-btn" class="btn btn-primary btn-sm" href="#" target="_blank" style="display:inline-flex;align-items:center;gap:6px"><i class="bi bi-google"></i> Open in Google Drive <i class="bi bi-box-arrow-up-right"></i></a>
+      </div>
+
+    </div>
+
+    <!-- ── DASHBOARD (3-METRIC SUMMARY + 3-COLUMN WORKSPACE) ── -->
+    <div id="view-dashboard" class="view hidden">
+      <div class="page-hdr">
+        <div>
+          <div class="page-title">Command Center</div>
+          <div class="page-sub" id="today-date"></div>
+        </div>
+      </div>
+
+      <!-- Balanced 3-Metric Case Metrics Row -->
+      <div class="grid3" style="margin-bottom:28px">
+        <div class="stat-card" style="--accent:var(--violet);--accent-glow:rgba(129,140,248,0.06)">
+          <div id="stat-total" class="stat-number" style="color:var(--violet)">0</div>
+          <div class="stat-label">Total Cases</div>
+        </div>
+        <div class="stat-card" style="--accent:var(--amber);--accent-glow:rgba(251,191,36,0.06)">
+          <div id="stat-ongoing" class="stat-number" style="color:var(--amber)">0</div>
+          <div class="stat-label">Active Cases</div>
+        </div>
+        <div class="stat-card" style="--accent:var(--green);--accent-glow:rgba(52,211,153,0.06)">
+          <div id="stat-completed" class="stat-number" style="color:var(--green)">0</div>
+          <div class="stat-label">Resolved</div>
+        </div>
+      </div>
+
+      <!-- 3-Column Responsive Grid: Recent Cases (5/page) + Agenda + Attorney Roster -->
+      <div class="dash-3col-grid" id="dash-main-grid">
+        
+        <!-- COLUMN 1: RECENT ACTIVE CASES (STRICTLY 5 PER PAGE) -->
+        <div class="card" style="display:flex;flex-direction:column">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+            <div style="font-size:16px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px">
+              <i class="bi bi-folder-fill" style="color:var(--gold);font-size:18px"></i> Recent Active Cases
+            </div>
+            <span style="font-size:11px;color:var(--gold);font-weight:700">5 cases / page</span>
+          </div>
+
+          <!-- 5-Case List Container -->
+          <div id="dash-cases" style="flex:1"></div>
+
+          <!-- Dashboard Pagination Bar -->
+          <div class="pagination-bar" id="dash-pagination-bar" style="display:flex;align-items:center;justify-content:space-between;padding-top:14px;margin-top:auto;border-top:1px solid var(--border);font-size:11.5px;color:var(--text-dim)">
+            <span id="dash-page-info">Showing 0 cases</span>
+            <div class="pagination-controls" style="display:flex;align-items:center;gap:6px">
+              <button class="page-btn" id="dash-btn-prev" onclick="changeDashPage(-1)"><i class="bi bi-chevron-left"></i></button>
+              <span id="dash-page-num" style="padding:0 8px;font-weight:700;color:var(--text)">Page 1 of 1</span>
+              <button class="page-btn" id="dash-btn-next" onclick="changeDashPage(1)"><i class="bi bi-chevron-right"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- COLUMN 2: GOOGLE CALENDAR AGENDA -->
+        <div class="card" id="dash-calendar-card" style="display:flex;flex-direction:column"></div>
+
+        <!-- COLUMN 3: ATTORNEY ROSTER CARD -->
+        <div class="card" id="dash-roster-card" style="display:flex;flex-direction:column">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+            <div style="font-size:15px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px">
+              <i class="bi bi-people-fill" style="color:var(--gold)"></i> Attorney Roster
+            </div>
+            <span class="badge" id="dash-roster-count-badge" style="background:rgba(201,165,92,0.12);color:var(--gold-light);border:1px solid var(--gold-border)">0 Counsel</span>
+          </div>
+          <input class="field-input" id="dash-profile-search" placeholder="Search attorney name or role…" oninput="renderDashProfiles()" style="font-size:12px;padding:8px 12px;margin-bottom:12px"/>
+          <div id="dash-profiles" style="overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:6px"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── SCHEDULE / CALENDAR VIEW ── -->
+    <div id="view-calendar" class="view hidden">
+      <div class="page-hdr">
+        <div>
+          <div class="page-title">Firm Schedule</div>
+          <div class="page-sub">Interactive calendar with colored indicators — click any date to view details</div>
+        </div>
+      </div>
+      
+      <div class="schedule-filter-bar">
+        <div class="schedule-filter-info">
+          <div class="schedule-filter-icon"><i class="bi bi-people-fill" style="color:var(--gold)"></i></div>
+          <div>
+            <div class="schedule-filter-label">Filter Calendar View</div>
+            <div class="schedule-filter-sub">Select an attorney profile or view the entire firm's schedule</div>
+          </div>
+        </div>
+        <div class="schedule-filter-select-wrap">
+          <select class="schedule-filter-select" id="calendar-filter-select" onchange="renderCalendarView()">
+            <option value="Everyone">Everyone (Firm Overview)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card" id="calendar-month-card" style="width:100%;max-width:1100px;padding:0;overflow:hidden">
+        <div id="calendar-legend-bar" style="display:flex;align-items:center;gap:14px;background:var(--surface2);border-bottom:1px solid var(--border);padding:10px 18px;flex-wrap:wrap;font-size:11.5px;">
+          <span style="font-weight:700;color:var(--text);display:flex;align-items:center;gap:5px"><i class="bi bi-info-circle" style="color:var(--gold)"></i> Legend:</span>
+          <span style="display:inline-flex;align-items:center;gap:4px;color:var(--gold-light)"><i class="bi bi-bank" style="color:var(--gold)"></i> Court Hearing</span>
+          <span style="display:inline-flex;align-items:center;gap:4px;color:#c7d2fe"><i class="bi bi-file-earmark-text-fill" style="color:var(--violet)"></i> Pleading Deadline</span>
+          <span style="display:inline-flex;align-items:center;gap:4px;color:#fca5a5"><i class="bi bi-slash-circle-fill" style="color:var(--red)"></i> Out of Office / In Court</span>
+          <span style="display:inline-flex;align-items:center;gap:4px;color:#86efac"><i class="bi bi-people-fill" style="color:var(--green)"></i> Consultation</span>
+        </div>
+
+        <div style="padding:20px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+            <div style="font-size:18px;font-weight:700;color:var(--text)" id="cal-month-title">Month Year</div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <button class="btn btn-secondary btn-sm" onclick="prevCalMonth()"><i class="bi bi-chevron-left"></i> Prev</button>
+              <button class="btn btn-ghost btn-sm" onclick="todayCalMonth()">Today</button>
+              <button class="btn btn-secondary btn-sm" onclick="nextCalMonth()">Next <i class="bi bi-chevron-right"></i></button>
+              <button class="btn btn-primary btn-sm" onclick="openBusyModal()" style="margin-left:4px"><i class="bi bi-calendar-event"></i> Set Availability</button>
+            </div>
+          </div>
+          
+          <div class="cal-grid" id="calendar-grid-container" style="min-height:480px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ALL CASES (STRICTLY 10 PER PAGE) ── -->
+    <div id="view-allcases" class="view hidden">
+      <div class="page-hdr">
+        <div class="page-title">All Cases</div>
+        <div class="page-sub" id="allcases-count"></div>
+      </div>
+
+      <div class="card mb-16" style="padding:16px">
+        <div style="display:flex;gap:12px;margin-bottom:12px;align-items:center">
+          <div style="position:relative;flex:1">
+            <input class="field-input" placeholder="Search cases by title, parties, or docket number…" id="ac-search" oninput="renderAllCases()" style="padding-left:36px"/>
+            <i class="bi bi-search" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-dim);font-size:14px"></i>
+          </div>
+          <select class="filter-select" id="ac-category" onchange="onFilterCategoryChange('ac')">
+            <option value="All">All Categories</option>
+          </select>
+          <select class="filter-select" id="ac-status" onchange="renderAllCases()">
+            <option value="All">All Statuses</option>
+          </select>
+          <select class="filter-select" id="ac-type" onchange="renderAllCases()">
+            <option value="All">All Types</option>
+          </select>
+          <select class="filter-select" id="ac-sort" onchange="renderAllCases()">
+            <option value="asc">Due: Soonest First</option>
+            <option value="desc">Due: Furthest First</option>
+            <option value="none">Date Added</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 10 Cases List Container -->
+      <div id="all-cases-list"></div>
+
+      <!-- All Cases 10-Item Pagination Bar -->
+      <div class="pagination-bar" id="allcases-pagination-bar" style="display:flex;align-items:center;justify-content:space-between;padding-top:16px;margin-top:16px;border-top:1px solid var(--border);font-size:12px;color:var(--text-dim)">
+        <span id="allcases-page-info">Showing 0 cases</span>
+        <div class="pagination-controls" style="display:flex;align-items:center;gap:6px">
+          <button class="page-btn" id="allcases-btn-prev" onclick="changeAllCasesPage(-1)"><i class="bi bi-chevron-left"></i></button>
+          <div id="allcases-page-buttons" style="display:flex;gap:4px"></div>
+          <button class="page-btn" id="allcases-btn-next" onclick="changeAllCasesPage(1)"><i class="bi bi-chevron-right"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── GOOGLE DRIVE EXPLORER REPLICA ── -->
+    <div id="view-mydrive" class="view hidden">
+      <div class="page-hdr">
+        <div class="page-title">Firm Drive</div>
+        <div class="page-sub">Direct, secure replica of your system Google Drive storage space</div>
+      </div>
+
+      <div class="card">
+        <div id="mydrive-breadcrumbs" style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;margin-bottom:20px;flex-wrap:wrap;color:var(--text-muted)"></div>
+
+        <div style="min-height:300px">
+          <div id="mydrive-explorer-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px"></div>
+          <div id="mydrive-empty-state" class="empty-state hidden">
+            <div class="empty-state-icon" style="color:var(--gold)"><i class="bi bi-folder2-open"></i></div>
+            <div style="font-size:13px">This folder is empty.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ALL PROFILES ── -->
+    <div id="view-profiles" class="view hidden">
+      <div class="page-hdr">
+        <div class="page-title">Attorney Profiles</div>
+        <div class="page-sub" id="profiles-count"></div>
+      </div>
+      <div id="profiles-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px"></div>
+    </div>
+
+    <!-- ── PROFILE DETAIL ── -->
+    <div id="view-profileDetail" class="view hidden">
+      <div class="flex-center gap-10 mb-24">
+        <button class="btn btn-ghost" onclick="navTo('profiles')"><i class="bi bi-arrow-left"></i> Back to Profiles</button>
+      </div>
+      <div class="card mb-24" id="profile-header-card" style="display:flex;align-items:center;gap:24px;flex-wrap:wrap"></div>
+      <div class="grid4" style="margin-bottom:20px" id="profile-stats-row"></div>
+      <div id="profile-restricted-notice" class="card" style="display:none;text-align:center;padding:40px;border-color:var(--border)">
+        <span style="font-size:32px;color:var(--amber)"><i class="bi bi-lock-fill"></i></span>
+        <div style="font-size:16px;font-weight:700;color:var(--text);margin-top:12px">Access Restricted</div>
+        <div style="font-size:13px;color:var(--text-dim);margin-top:6px">For privacy reasons, you can only access documents and cases belonging to your own account.</div>
+      </div>
+      <div id="profile-cases-section">
+        <div style="display:flex;gap:10px;margin-bottom:16px;align-items:center;flex-wrap:wrap">
+          <input class="field-input" style="max-width:200px;flex:1;min-width:130px" placeholder="Search cases…" id="pd-search" oninput="renderProfileCases()"/>
+          <select class="filter-select" id="pd-status" onchange="renderProfileCases()" title="Filter by status">
+            <option value="All">All Statuses</option>
+          </select>
+          <select class="filter-select" id="pd-category" onchange="onFilterCategoryChange('pd')" title="Filter by category">
+            <option value="All">All Categories</option>
+          </select>
+          <select class="filter-select" id="pd-type" onchange="renderProfileCases()" title="Filter by type">
+            <option value="All">All Types</option>
+          </select>
+          <select class="filter-select" id="pd-sort" onchange="renderProfileCases()" title="Sort by due date">
+            <option value="asc">Due: Soonest First</option>
+            <option value="desc">Due: Furthest First</option>
+            <option value="none">Date Added</option>
+          </select>
+        </div>
+        <div id="profile-cases-list"></div>
+      </div>
+    </div>
+
+    <!-- ── PROFILE FORM (CREATE / EDIT) ── -->
+    <div id="view-profileForm" class="view hidden">
+      <div class="flex-center gap-10 mb-24">
+        <button class="btn btn-ghost" id="pf-back-btn"><i class="bi bi-arrow-left"></i> Cancel</button>
+        <div style="font-size:22px;font-weight:700;color:var(--text)" id="pf-title">New Attorney Profile</div>
+      </div>
+      <div class="card" style="max-width:680px">
+        <div id="pf-drive-section" style="margin-bottom:24px;padding:16px;background:var(--surface2);border:1px solid var(--border);border-radius:12px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <span style="font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px"><i class="bi bi-google" style="color:var(--gold)"></i> Google Drive Integration *</span>
+            <span id="pf-drive-status" class="drive-status-chip disconnected"><i class="bi bi-circle-fill"></i> Not Connected</span>
+          </div>
+          <button type="button" class="gdrive-btn" id="pf-connect-drive-btn" onclick="connectDriveForProfile()" style="width:100%;justify-content:center">
+            <i class="bi bi-google"></i> <span id="pf-connect-drive-text">Connect Google Drive Account</span>
+          </button>
+          <div id="pf-drive-error" class="field-err hidden" style="margin-top:8px"></div>
+        </div>
+
+        <div id="pf-details-section">
+          <div class="grid2 mb-16">
+            <div>
+              <label class="field-label" id="lbl-pf-name">Full Name *</label>
+              <input class="field-input" id="pf-name" placeholder="e.g. Atty. Juan Dela Cruz"/>
+              <div id="pf-name-err" class="field-err hidden">Full name is required</div>
+            </div>
+            <div>
+              <label class="field-label" id="lbl-pf-role">Role / Title *</label>
+              <input class="field-input" id="pf-role" placeholder="e.g. Senior Associate"/>
+              <div id="pf-role-err" class="field-err hidden">Role is required</div>
+            </div>
+          </div>
+          <div class="grid2 mb-16">
+            <div>
+              <label class="field-label">Contact Number (11 digits)</label>
+              <input class="field-input" id="pf-contact" placeholder="09XXXXXXXXX" maxlength="11" inputmode="numeric"/>
+            </div>
+            <div>
+              <label class="field-label" id="lbl-pf-email">Email Address (@gmail.com or @outlook.com) *</label>
+              <input class="field-input" id="pf-email" placeholder="attorney@gmail.com" type="email"/>
+              <div id="pf-email-err" class="field-err hidden">Valid @gmail.com or @outlook.com email is required</div>
+            </div>
+          </div>
+          
+          <div style="display:flex;gap:12px;justify-content:center;margin-top:24px">
+            <button class="btn btn-ghost" id="pf-cancel-btn">Cancel</button>
+            <button class="btn btn-primary" id="pf-save-btn" onclick="saveProfile()" style="min-width:200px"><i class="bi bi-check-lg"></i> <span id="pf-save-btn-text">Create Profile</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CASE FORM (CREATE / EDIT) ── -->
+    <div id="view-caseForm" class="view hidden">
+      <div class="flex-center gap-10 mb-24">
+        <button class="btn btn-ghost" id="cf-back-btn" onclick="handleCaseCancelOrExit()"><i class="bi bi-arrow-left"></i> Cancel</button>
+        <div style="font-size:22px;font-weight:700;color:var(--text)" id="cf-title">New Case</div>
+      </div>
+      <div class="card" style="max-width:800px">
+        <div id="cf-profile-chip" style="display:none;align-items:center;gap:10px;padding:8px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;margin-bottom:20px"></div>
+        
+        <div class="grid2 mb-16">
+          <div style="grid-column: 1/-1">
+            <label class="field-label">Case Title *</label>
+            <input class="field-input" id="cf-case-title" placeholder="e.g. People of the Philippines vs. Dela Cruz"/>
+            <div id="cf-title-err" class="field-err hidden">Case title is required</div>
+          </div>
+          <div>
+            <label class="field-label">Category *</label>
+            <select class="field-input" id="cf-category" onchange="onCategoryChange(this.value)"></select>
+          </div>
+          <div>
+            <label class="field-label">Case Type / Sub-Category</label>
+            <div style="position:relative">
+              <input class="field-input" id="cf-type-input" placeholder="Type or select..." oninput="filterCaseTypeSuggestions(this.value)" onfocus="showCaseTypeSuggestions()" onkeydown="onCaseTypeKeydown(event)"/>
+              <div id="cf-type-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:100;background:var(--surface);border:1px solid var(--border);border-radius:8px;max-height:180px;overflow-y:auto;box-shadow:var(--shadow)"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid2 mb-16">
+          <div>
+            <label class="field-label">Date Case Filed *</label>
+            <input type="date" class="field-input" id="cf-filed"/>
+            <div id="cf-filed-err" class="field-err hidden">Filed date is required</div>
+          </div>
+          <div>
+            <label class="field-label">Case / Docket Number</label>
+            <input class="field-input" id="cf-case-number" placeholder="e.g. Civil Case No. 2026-104"/>
+          </div>
+        </div>
+
+        <div class="grid2 mb-16">
+          <div>
+            <label class="field-label">Status</label>
+            <select class="field-input" id="cf-status"></select>
+          </div>
+          <div>
+            <label class="field-label">Venue / Court</label>
+            <select class="field-input" id="cf-venue" onchange="onVenueChange(this)"></select>
+            <input class="field-input mt-16" id="cf-venue-manual" placeholder="Specify other venue..." style="display:none"/>
+          </div>
+        </div>
+
+        <div class="card mb-16" style="background:var(--surface2);padding:18px">
+          <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:6px">
+            <i class="bi bi-people-fill" style="color:var(--gold)"></i> Parties Involved *
+          </div>
+          <input type="hidden" id="cf-parties"/>
+          
+          <div class="grid2 mb-12">
+            <div>
+              <label class="field-label" id="cf-party-a-label">Petitioner / Plaintiff</label>
+              <div style="display:flex;gap:6px">
+                <input class="field-input" id="cf-petitioner-input" placeholder="Name..." onkeydown="if(event.key==='Enter'){event.preventDefault();addParty('petitioner');}"/>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="addParty('petitioner')"><i class="bi bi-plus-lg"></i></button>
+              </div>
+              <div id="cf-petitioners-list" style="margin-top:8px"></div>
+            </div>
+            <div>
+              <label class="field-label" id="cf-party-b-label">Respondent / Defendant</label>
+              <div style="display:flex;gap:6px">
+                <input class="field-input" id="cf-respondent-input" placeholder="Name..." onkeydown="if(event.key==='Enter'){event.preventDefault();addParty('respondent');}"/>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="addParty('respondent')"><i class="bi bi-plus-lg"></i></button>
+              </div>
+              <div id="cf-respondents-list" style="margin-top:8px"></div>
+            </div>
+          </div>
+          <div id="cf-parties-err" class="field-err hidden">At least one party on both sides is required</div>
+        </div>
+
+        <!-- Hidden legacy inputs for compatibility -->
+        <input type="hidden" id="cf-due"/>
+        <input type="hidden" id="cf-doc-type"/>
+
+        <!-- 1. HEARINGS & HISTORY TRACKER (OPTIONAL) -->
+        <div class="card mb-16" style="background:var(--surface2);padding:18px;border:1.5px solid var(--gold-border)">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:8px">
+            <div style="font-size:13.5px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px">
+              <span><i class="bi bi-bank" style="color:var(--gold)"></i> Court Hearing Dates &amp; History</span>
+              <span id="cf-hearing-status-badge" class="badge" style="background:rgba(255,255,255,0.06);color:var(--text-dim);font-size:10px">0 LOGGED</span>
+            </div>
+            <div style="font-size:11.5px;color:var(--text-dim)">
+              All hearings remain permanently logged as a chronological case history.
+            </div>
+          </div>
+
+          <div id="cf-hearings-list" style="margin-top:10px"></div>
+          <div id="cf-hearings-err" class="field-err hidden" style="margin:8px 0"></div>
+
+          <!-- Sub-form to Add Hearing -->
+          <div style="background:var(--surface3);border:1px dashed var(--gold-border);border-radius:10px;padding:14px;margin-top:12px">
+            <div style="font-size:12px;font-weight:700;color:var(--gold-light);margin-bottom:10px"><i class="bi bi-plus-circle"></i> Add Scheduled or Past Hearing Date</div>
+            <div class="grid2 mb-12">
+              <div>
+                <label class="field-label">Hearing Date *</label>
+                <input type="date" class="field-input" id="cf-new-hearing-date"/>
+              </div>
+              <div>
+                <label class="field-label">Time</label>
+                <input type="time" class="field-input" id="cf-new-hearing-time" value="08:30"/>
+              </div>
+            </div>
+            <div class="grid2 mb-12">
+              <div>
+                <label class="field-label">Stage / Purpose *</label>
+                <select class="field-input" id="cf-new-hearing-purpose">
+                  <option value="Pre-Trial Conference">Pre-Trial Conference</option>
+                  <option value="Arraignment and Plea">Arraignment and Plea</option>
+                  <option value="Presentation of Prosecution / Plaintiff Evidence">Presentation of Prosecution Evidence</option>
+                  <option value="Presentation of Defense Evidence">Presentation of Defense Evidence</option>
+                  <option value="Cross-Examination of Witness">Cross-Examination of Witness</option>
+                  <option value="Judicial Dispute Resolution (JDR)">Judicial Dispute Resolution (JDR)</option>
+                  <option value="Hearing on Motion">Hearing on Motion</option>
+                  <option value="Promulgation of Judgment">Promulgation of Judgment</option>
+                  <option value="Other Court Appearance">Other Court Appearance</option>
+                </select>
+              </div>
+              <div>
+                <label class="field-label">Remarks / Description</label>
+                <input type="text" class="field-input" id="cf-new-hearing-notes" placeholder="e.g. Witness presented, reset to next month"/>
+              </div>
+            </div>
+            <div style="display:flex;justify-content:flex-end">
+              <button type="button" class="btn btn-primary btn-sm" onclick="addCaseHearing()"><i class="bi bi-plus-lg"></i> Log Hearing Date</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. DOCUMENT & PLEADING DEADLINES TRACKER (OPTIONAL) -->
+        <div class="card mb-16" style="background:var(--surface2);padding:18px;border:1.5px solid var(--gold-border)">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:8px">
+            <div style="font-size:13.5px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px">
+              <span><i class="bi bi-file-earmark-text-fill" style="color:var(--gold)"></i> Document &amp; Pleading Deadlines</span>
+              <span id="cf-deadline-status-badge" class="badge" style="background:rgba(201,165,92,0.15);color:var(--gold-light);font-size:10px">0 LOGGED</span>
+            </div>
+            <div style="font-size:11.5px;color:var(--text-dim)">
+              Log filing deadlines for Answers, Formal Offers, Motions, and Pleadings.
+            </div>
+          </div>
+
+          <div id="cf-deadlines-list" style="margin-top:10px"></div>
+
+          <!-- Sub-form to Add Document / Pleading Deadline -->
+          <div style="background:var(--surface3);border:1px dashed var(--gold-border);border-radius:10px;padding:14px;margin-top:12px">
+            <div style="font-size:12px;font-weight:700;color:var(--gold-light);margin-bottom:10px"><i class="bi bi-plus-circle"></i> Add Document / Pleading Deadline</div>
+            <div class="grid2 mb-12">
+              <div>
+                <label class="field-label">Filing Deadline Date *</label>
+                <input type="date" class="field-input" id="cf-new-deadline-date"/>
+              </div>
+              <div>
+                <label class="field-label">Document Flow Direction</label>
+                <select class="field-input" id="cf-new-deadline-flow">
+                  <option value="Outbound Motion" selected>Outbound (Firm Filing / Submission)</option>
+                  <option value="Inbound Pleading">Inbound (Opposing Counsel Submission)</option>
+                  <option value="Court Compliance">Court Compliance / Manifestation</option>
+                </select>
+              </div>
+            </div>
+            <div class="grid2 mb-12">
+              <div>
+                <label class="field-label">Document / Pleading Subtype *</label>
+                <input type="text" class="field-input" id="cf-new-deadline-subtype" placeholder="e.g. Formal Offer of Evidence, Answer with Counterclaim"/>
+              </div>
+              <div>
+                <label class="field-label">Remarks / Description</label>
+                <input type="text" class="field-input" id="cf-new-deadline-notes" placeholder="e.g. 15-day inextendible period, attach annexes"/>
+              </div>
+            </div>
+            <div style="display:flex;justify-content:flex-end">
+              <button type="button" class="btn btn-primary btn-sm" onclick="addCaseDeadline()"><i class="bi bi-plus-lg"></i> Log Document Deadline</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-16">
+          <label class="field-label">Case Narrative / Description *</label>
+          <textarea class="field-input" id="cf-narrative" rows="4" placeholder="Briefly summarize the background, claims, and current posture of the case..."></textarea>
+          <div id="cf-narrative-err" class="field-err hidden">Narrative summary is required</div>
+        </div>
+
+        <div class="card mb-20" style="background:var(--surface2);padding:18px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <span style="font-size:13px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px"><i class="bi bi-paperclip" style="color:var(--gold)"></i> Attach Documents</span>
+            <span id="drive-status" style="font-size:11px;color:var(--text-dim)"></span>
+          </div>
+          
+          <div style="display:flex;align-items:center;gap:16px;margin-bottom:12px">
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer">
+              <input type="radio" name="cf-file-type" value="Inbound" checked style="accent-color:var(--gold)"/> <i class="bi bi-box-arrow-in-down" style="color:var(--green)"></i> Inbound
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer">
+              <input type="radio" name="cf-file-type" value="Outbound" style="accent-color:var(--gold)"/> <i class="bi bi-box-arrow-up" style="color:var(--violet)"></i> Outbound
+            </label>
+          </div>
+
+          <div class="upload-area" onclick="triggerLocalAttach()">
+            <div style="font-size:24px;margin-bottom:4px;color:var(--gold)"><i class="bi bi-cloud-arrow-up"></i></div>
+            <div>Click to select files from your computer</div>
+          </div>
+          <input type="file" id="local-file-input" multiple style="display:none" onchange="handleLocalAttach(event)"/>
+          
+          <div id="cf-docs-list" style="margin-top:12px"></div>
+        </div>
+
+        <div style="display:flex;gap:12px;justify-content:flex-end">
+          <button class="btn btn-ghost" id="cf-cancel-btn" onclick="handleCaseCancelOrExit()">Cancel</button>
+          <button class="btn btn-primary" id="cf-save-btn" onclick="saveCase()"><i class="bi bi-check2-circle"></i> Add Case</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CASE DETAIL ── -->
+    <div id="view-caseDetail" class="view hidden">
+      <div style="margin-bottom:20px">
+        <button class="btn btn-ghost btn-sm" id="cd-back-btn" onclick="handleCaseDetailBack()" style="margin-bottom:8px">
+          <i class="bi bi-arrow-left"></i> Back
+        </button>
+        <div style="font-weight:700;font-size:24px;color:var(--text)" id="cd-title"></div>
+        
+        <!-- Action toolbar directly below title -->
+        <div id="cd-action-buttons-wrap" style="display:flex;gap:8px;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)"></div>
+      </div>
+
+      <div id="cd-profile-chip" style="display:inline-flex;align-items:center;gap:10px;padding:10px 16px;background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:24px;cursor:pointer;transition:all 0.2s" onclick="openCurrentProfile()"></div>
+
+      <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:24px">
+        <div class="card" id="cd-info"></div>
+        <div>
+          <div class="card" id="cd-hearings" style="margin-bottom:16px"></div>
+          <div class="card" id="cd-docs"></div>
+          <div class="card mt-16" id="cd-status-panel"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MY USER SETTINGS (ZERO DANGER ZONE) ── -->
+    <div id="view-myprofile" class="view hidden">
+      <div class="page-hdr">
+        <div>
+          <div class="page-title">My Settings</div>
+          <div class="page-sub">Personal profile, team security credentials, firm ethics &amp; help portal</div>
+        </div>
+      </div>
+      
+      <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:24px;width:100%;max-width:1300px">
+        
+        <div style="display:flex;flex-direction:column;gap:24px">
+          <div class="card">
+            <div style="font-size:16px;font-weight:700;color:var(--gold);margin-bottom:20px;display:flex;align-items:center;gap:8px">
+              <i class="bi bi-person-circle"></i> Profile Details
+            </div>
+            <div class="grid2">
+              <div style="grid-column: 1/-1">
+                <label class="field-label" id="lbl-setting-name">Display Name *</label>
+                <input class="field-input" id="setting-name" placeholder="e.g. Atty. Maria Garcia"/>
+              </div>
+              <div>
+                <label class="field-label" id="lbl-setting-role">Role / Designation *</label>
+                <input class="field-input" id="setting-role" placeholder="e.g. Senior Partner"/>
+              </div>
+              <div>
+                <label class="field-label">Contact Number (11 digits)</label>
+                <input class="field-input" id="setting-contact" placeholder="09XXXXXXXXX" maxlength="11" inputmode="numeric"/>
+              </div>
+              <div style="grid-column: 1/-1">
+                <label class="field-label">Attorney Profile Photo</label>
+                <div id="setting-photo-upload-area" style="margin-top:6px">
+                  <div id="setting-photo-dropzone" onclick="document.getElementById('setting-photo-input').click()" style="border:2px dashed var(--border);border-radius:10px;padding:18px;text-align:center;cursor:pointer;background:var(--bg)">
+                    <div style="font-size:24px;margin-bottom:6px;color:var(--gold)"><i class="bi bi-camera-fill"></i></div>
+                    <div style="font-size:13px;color:var(--text-muted);font-weight:500">Click to upload a profile photo</div>
+                    <div style="font-size:11px;color:var(--text-dim);margin-top:3px">Max size: 2MB</div>
+                  </div>
+                  <input type="file" id="setting-photo-input" accept="image/*" style="display:none" onchange="handleSettingsPhotoUpload(event)"/>
+                  
+                  <div id="setting-photo-preview-wrap" style="display:none;align-items:center;gap:14px;margin-top:12px;padding:12px 16px;background:var(--bg);border-radius:10px;border:1px solid var(--border)">
+                    <img id="setting-photo-preview-img" src="" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid var(--gold)"/>
+                    <div style="flex:1">
+                      <div id="setting-name-preview" style="font-size:15px;font-weight:600;color:var(--text)">Name</div>
+                      <div id="setting-role-preview" style="font-size:13px;color:var(--text-dim)">Role</div>
+                    </div>
+                    <button onclick="removeSettingsPhoto()" class="btn btn-ghost" style="padding:4px 8px;font-size:11px"><i class="bi bi-x-circle"></i> Remove</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div style="display:flex;justify-content:center;margin-top:24px">
+              <button class="btn btn-primary" onclick="saveUserSettings()" style="min-width:240px;justify-content:center">
+                <i class="bi bi-check2"></i> Save Profile Settings
+              </button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+              <div style="font-size:16px;font-weight:700;color:var(--gold);display:flex;align-items:center;gap:8px">
+                <i class="bi bi-activity"></i> System Health &amp; Diagnostic Console
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="openDiagnosticModal()"><i class="bi bi-wrench-adjustable"></i> Open Diagnostics</button>
+            </div>
+            <div style="font-size:13px;color:var(--text-muted);line-height:1.5">
+              Verify your courtroom internet connection, Firestore real-time database state, and linked Google Drive file storage space.
+            </div>
+          </div>
+
+          <div class="card">
+            <div style="font-size:16px;font-weight:700;color:var(--gold);margin-bottom:14px;display:flex;align-items:center;gap:8px">
+              <i class="bi bi-shield-shaded"></i> Firm Guidelines &amp; Feedback Portal
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+              <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px">
+                <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;display:flex;align-items:center;gap:6px"><i class="bi bi-chat-square-quote-fill" style="color:var(--gold)"></i> Suggestion / Issue Report</div>
+                <div style="font-size:11.5px;color:var(--text-muted);margin-bottom:12px;line-height:1.5">Submit feedback, feature requests, or system reports directly to firm leadership.</div>
+                <a href="https://docs.google.com/forms/d/e/1FAIpQLSdzPdOrdfOPttHR2OBkXjnvoAO7Lhacb2q2Tvl1Sq_89ohhxA/viewform?usp=publish-editor" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" style="width:100%;justify-content:center">
+                  Open Feedback Form <i class="bi bi-box-arrow-up-right"></i>
+                </a>
+              </div>
+
+              <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px">
+                <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;display:flex;align-items:center;gap:6px"><i class="bi bi-journal-text" style="color:var(--gold)"></i> Ethics &amp; Legal Rules</div>
+                <div style="font-size:11.5px;color:var(--text-muted);margin-bottom:12px;line-height:1.5">Review confidentiality standards, attorney-client privilege, and platform terms.</div>
+                <div style="display:flex;gap:8px">
+                  <a href="privacy-policy.html" target="_blank" class="btn btn-secondary btn-sm" style="flex:1;justify-content:center"><i class="bi bi-file-earmark-lock"></i> Privacy Policy</a>
+                  <a href="terms-of-service.html" target="_blank" class="btn btn-secondary btn-sm" style="flex:1;justify-content:center"><i class="bi bi-file-earmark-text"></i> Terms</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:24px">
+          <div class="card" style="border: 1.5px solid var(--gold-border); background: linear-gradient(180deg, var(--surface) 0%, rgba(201,165,92,0.04) 100%);">
+            <div style="font-size:16px;font-weight:700;color:var(--gold);margin-bottom:12px;display:flex;align-items:center;gap:8px">
+              <i class="bi bi-google"></i> Google Drive &amp; Docs Connection
+            </div>
+            <div style="font-size:13px;color:var(--text-muted);line-height:1.5;margin-bottom:16px">
+              Connect your Google Drive account to allow document uploads, Google Docs legal drafting, and profile photo syncing.
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+              <span style="font-size:13px;font-weight:600;color:var(--text)">Status:</span>
+              <span id="settings-drive-status" class="drive-status-chip disconnected"><i class="bi bi-circle-fill"></i> Not Connected</span>
+            </div>
+            
+            <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+              <button class="gdrive-btn gdrive-highlight-btn" id="settings-connect-drive-btn" onclick="connectDriveFromSettings()">
+                <i class="bi bi-google"></i>
+                <span id="settings-connect-drive-text">Connect Google Account</span>
+              </button>
+              <button class="btn btn-danger btn-sm hidden" id="settings-disconnect-drive-btn" onclick="disconnectDriveAccount()" style="padding:10px 16px">
+                <i class="bi bi-x-circle"></i> Disconnect
+              </button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div style="font-size:16px;font-weight:700;color:var(--gold);margin-bottom:12px;display:flex;align-items:center;gap:8px">
+              <i class="bi bi-shield-lock-fill"></i> Two-Factor Authentication (2FA)
+            </div>
+            <div style="font-size:13px;color:var(--text-muted);line-height:1.5;margin-bottom:16px">
+              Protect client files and account access using Google Authenticator, Microsoft Authenticator, or Apple Passwords.
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+              <span style="font-size:13px;font-weight:600;color:var(--text)">Status:</span>
+              <span id="setting-2fa-status-badge" class="badge" style="background:rgba(251,191,36,0.15);color:var(--amber)"><i class="bi bi-circle-fill" style="font-size:8px"></i> Not Enabled</span>
+            </div>
+            
+            <div style="display:flex;justify-content:center">
+              <button id="setting-2fa-action-btn" class="btn btn-primary btn-sm" onclick="openTwoFactorSetupModal()" style="min-width:210px;width:auto;justify-content:center;padding:9px 20px">
+                <i class="bi bi-qr-code-scan"></i> Configure Authenticator
+              </button>
+            </div>
+            <div id="setting-2fa-backup-wrap" style="display:none;margin-top:12px;text-align:center">
+              <span style="font-size:11px;color:var(--text-dim)">Backup codes are active in your security profile.</span>
+            </div>
+          </div>
+
+          <div class="card">
+            <div style="font-size:16px;font-weight:700;color:var(--gold);margin-bottom:20px;display:flex;align-items:center;gap:8px">
+              <i class="bi bi-key-fill"></i> Login &amp; Password
+            </div>
+            
+            <div class="mb-16">
+              <label class="field-label">Email Address (@gmail.com or @outlook.com) *</label>
+              <input class="field-input" id="setting-email" placeholder="attorney@gmail.com or @outlook.com" type="email"/>
+            </div>
+            
+            <div class="mb-16">
+              <label class="field-label">New Password (leave blank to keep unchanged)</label>
+              <input type="password" class="field-input" id="setting-password" placeholder="••••••••"/>
+              <div id="password-requirements" style="display:none;margin-top:10px;padding:12px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:8px">
+                <div style="font-size:11px;font-weight:700;color:var(--text-dim);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px">Password Requirements</div>
+                <div id="req-length" style="font-size:12px;color:var(--text-muted);display:flex;align-items:center;gap:6px;margin-bottom:4px">
+                  <span class="req-icon"><i class="bi bi-x-circle" style="color:var(--red)"></i></span> Min. 6 characters
+                </div>
+                <div id="req-upper" style="font-size:12px;color:var(--text-muted);display:flex;align-items:center;gap:6px;margin-bottom:4px">
+                  <span class="req-icon"><i class="bi bi-x-circle" style="color:var(--red)"></i></span> At least one uppercase letter (A-Z)
+                </div>
+                <div id="req-number" style="font-size:12px;color:var(--text-muted);display:flex;align-items:center;gap:6px;margin-bottom:4px">
+                  <span class="req-icon"><i class="bi bi-x-circle" style="color:var(--red)"></i></span> At least one number (0-9)
+                </div>
+                <div id="req-special" style="font-size:12px;color:var(--text-muted);display:flex;align-items:center;gap:6px">
+                  <span class="req-icon"><i class="bi bi-x-circle" style="color:var(--red)"></i></span> At least one special character (@, #, $, etc.)
+                </div>
+              </div>
+            </div>
+
+            <div id="setting-reauth-panel" style="display:none;background:rgba(201,168,76,0.06);border:1px solid var(--gold-border);border-radius:10px;padding:14px;margin-bottom:16px">
+              <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:6px">Verification Required</div>
+              <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px">Enter your current password to apply email/password changes:</div>
+              <input type="password" class="field-input" id="setting-current-password" placeholder="Current Password"/>
+            </div>
+
+            <button class="btn btn-secondary" onclick="saveSecuritySettings()" style="width:100%"><i class="bi bi-shield-check"></i> Update Credentials</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<script src="js/config.js"></script>
+<script src="js/data.js"></script>
+<script src="js/drive.js"></script>
+<script src="js/analyzer.js"></script>
+<script src="js/ui.js"></script>
+<script src="https://apis.google.com/js/api.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer onload="if(window.onGoogleLibraryLoad)window.onGoogleLibraryLoad()"></script>
+<script src="js/app.js"></script>
+<script src="js/chat.js"></script>
+
+<script>
+  const _origShowView = window.showView;
+  window.showView = function(viewName) {
+    if (typeof _origShowView === "function") _origShowView(viewName);
+
+    const allcasesSlot = document.getElementById("slot-allcases-action");
+    const profilesSlot = document.getElementById("slot-profiles-action");
+    const mydriveSlot  = document.getElementById("slot-mydrive-action");
+
+    if (allcasesSlot) allcasesSlot.style.display = (viewName === "allcases") ? "flex" : "none";
+    if (profilesSlot) profilesSlot.style.display = (viewName === "profiles") ? "flex" : "none";
+    if (mydriveSlot)  mydriveSlot.style.display  = (viewName === "mydrive")  ? "flex" : "none";
+  };
+</script>
+</body>
+</html>
