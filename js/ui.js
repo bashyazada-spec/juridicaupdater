@@ -2006,7 +2006,7 @@ function renderDashboard() {
 
   if (dcEl) {
     dcEl.innerHTML = pagedCases.length === 0
-      ? '<div class="empty-state" style="text-align:center;padding:40px 10px;color:var(--muted)"><div class="empty-state-icon" style="color:var(--gold);font-size:32px;margin-bottom:8px"><i class="bi bi-folder2-open"></i></div><div style="font-size:13px">No active cases yet.</div></div>'
+      ? '<div class="empty-state" style="text-align:center;padding:48px 16px;color:var(--muted);border:1px dashed var(--line2);border-radius:14px;background:var(--inset)"><div class="empty-state-icon" style="color:var(--gold);font-size:32px;margin-bottom:8px"><i class="bi bi-folder2-open"></i></div><div style="font-size:13.5px;font-weight:600">No active cases yet.</div></div>'
       : pagedCases.map(c => {
         const p = profiles.find(x => x.id === c.profileId);
         const targetDue = c.dueDate || c.docDueDate;
@@ -2025,16 +2025,16 @@ function renderDashboard() {
           <div class="case-row-2" onclick="openCase('${c.id}')">
             <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
               <div style="display:flex;gap:12px;align-items:flex-start;flex:1;min-width:0">
-                ${p ? avatarDiv(p.name, p.avatarColor, 32, p.photoUrl) : ""}
+                ${p ? avatarDiv(p.name, p.avatarColor, 34, p.photoUrl) : ""}
                 <div style="flex:1;min-width:0">
                   <div style="font-weight:700;font-size:13.5px;color:var(--head);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(c.title)}</div>
-                  <div style="font-size:11.5px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+                  <div style="font-size:11.5px;color:var(--muted);margin-top:3px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
                     ${categoryBadge}
                     <span>${p?.name || ""} · ${c.type || "Litigation"}</span>
                   </div>
                 </div>
               </div>
-              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0">
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">
                 ${badge(c.status, statusColor(c.status))}
                 ${urgency ? '<span style="font-size:10px;font-weight:700;color:' + urgency.col + '">' + urgency.label + '</span>' : ""}
               </div>
@@ -2078,7 +2078,6 @@ function renderDashProfiles() {
   const q = (searchInp?.value || "").toLowerCase().trim();
   const u = window._currentUser;
   const myProf = u ? profiles.find(p => p.ownerUid === u.uid || (p.email && p.email.toLowerCase() === (u.email || "").toLowerCase())) : null;
-  const isFirmAdmin = myProf && myProf.role === "admin";
   const isDeveloper = myProf && myProf.role === "developer";
 
   let visible = [];
@@ -3460,7 +3459,7 @@ async function fetchAndRenderGoogleCalendarEvents() {
   </div>`;
 
   if (!hasValidToken()) {
-    html += `<div class="empty-state" style="text-align:center;padding:32px 14px;background:var(--inset);border:1px solid var(--line2);border-radius:12px">
+    html += `<div class="empty-state" style="text-align:center;padding:36px 16px;background:var(--inset);border:1px solid var(--line2);border-radius:14px">
       <div style="font-size:26px;margin-bottom:8px;color:var(--gold)"><i class="bi bi-cloud-slash"></i></div>
       <div style="font-weight:700;color:var(--head);font-size:13.5px">Google Calendar Not Synced</div>
       <div style="font-size:12px;color:var(--muted);margin-top:6px;line-height:1.5">Authorize Google Calendar under <a href="#" onclick="navTo('myprofile'); return false;" style="color:var(--goldtxt);text-decoration:underline;font-weight:700">My Settings</a> to sync case deadlines and view your agenda live.</div>
@@ -3492,7 +3491,7 @@ async function fetchAndRenderGoogleCalendarEvents() {
     window._fetchedCalendarEvents = events;
 
     if (events.length === 0) {
-      html += `<div style="text-align:center;padding:28px 12px;color:var(--muted);border:1px dashed var(--line2);border-radius:12px;font-size:12.5px">
+      html += `<div style="text-align:center;padding:32px 14px;color:var(--muted);border:1px dashed var(--line2);border-radius:14px;font-size:12.5px">
         No upcoming events found on your Google Calendar.
       </div>`;
     } else {
@@ -3511,7 +3510,7 @@ async function fetchAndRenderGoogleCalendarEvents() {
         const weekdayStr = eventDate.toLocaleDateString("en-US", { weekday: "short" });
 
         html += `
-          <div onclick="openCalendarEventModal(${i})" style="display:flex;gap:12px;align-items:center;padding:11px 13px;background:var(--inset);border:1px solid var(--line2);border-radius:12px;cursor:pointer;transition:all 0.15s" onmouseenter="this.style.borderColor='var(--gold-bd)';this.style.background='var(--navhov)'" onmouseleave="this.style.borderColor='var(--line2)';this.style.background='var(--inset)'">
+          <div onclick="openCalendarEventModal(${i})" style="display:flex;gap:12px;align-items:center;padding:12px 14px;background:var(--inset);border:1px solid var(--line2);border-radius:12px;cursor:pointer;transition:all 0.15s" onmouseenter="this.style.borderColor='var(--gold-bd)';this.style.background='var(--navhov)'" onmouseleave="this.style.borderColor='var(--line2)';this.style.background='var(--inset)'">
             <div style="text-align:center;background:var(--gold-bg);border:1px solid var(--gold-bd);border-radius:8px;padding:6px;min-width:48px">
               <div style="font-size:10px;font-weight:800;color:var(--goldtxt);text-transform:uppercase">${weekdayStr}</div>
               <div style="font-size:15px;font-weight:700;color:var(--head);margin-top:1px">${eventDate.getDate()}</div>
