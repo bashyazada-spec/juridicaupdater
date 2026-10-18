@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-//  THEME INITIALIZATION & TOGGLE
+//  THEME INITIALIZATION & TOGGLE (SIMANDO 2.0 TOKENS)
 // ═══════════════════════════════════════════════════════════════
 function initTheme() {
   const saved = localStorage.getItem('simando-theme');
@@ -23,6 +23,10 @@ function updateThemeIcon(theme) {
     sw.setAttribute('data-theme-active', theme);
     if (theme === 'light') sw.classList.add('is-light');
     else sw.classList.remove('is-light');
+  }
+  const label = document.getElementById('modeLabelText');
+  if (label) {
+    label.textContent = theme === 'light' ? 'Light mode' : 'Dark mode';
   }
 }
 
@@ -234,7 +238,6 @@ window.checkOnboardingSecurityStatus = function() {
 };
 
 function initOnboarding2FAQrCodes(myProf, u) {
-  // Persist secret in sessionStorage so reloads never desynchronize Authenticator
   if (!onboardingGeneratedSecret) {
     const saved = sessionStorage.getItem("simando_temp_2fa_secret");
     if (saved) {
@@ -254,7 +257,7 @@ function initOnboarding2FAQrCodes(myProf, u) {
 
   const keyDisplay = document.getElementById("ob-pairing-secret-key");
   if (keyDisplay) {
-    keyDisplay.innerHTML = `<span style="font-weight:700;color:var(--text)">KEY:</span> ${onboardingGeneratedSecret.match(/.{1,4}/g)?.join(" ") || onboardingGeneratedSecret} <button type="button" onclick="copyOnboardingSecretKey()" style="background:none;border:none;color:var(--gold);cursor:pointer;margin-left:6px;font-size:11px;font-weight:600;text-decoration:underline" title="Copy Key"><i class="bi bi-clipboard"></i> Copy</button>`;
+    keyDisplay.innerHTML = `<span style="font-weight:700;color:var(--head)">KEY:</span> ${onboardingGeneratedSecret.match(/.{1,4}/g)?.join(" ") || onboardingGeneratedSecret} <button type="button" onclick="copyOnboardingSecretKey()" style="background:none;border:none;color:var(--goldtxt);cursor:pointer;margin-left:6px;font-size:11px;font-weight:700;text-decoration:underline" title="Copy Key"><i class="bi bi-clipboard"></i> Copy</button>`;
   }
 
   const userEmail = myProf?.email || u?.email || "attorney@simandolaw.com";
@@ -309,7 +312,7 @@ function initOnboarding2FAQrCodes(myProf, u) {
 
       if (cleaned.length === 6) {
         if (statusMsg) {
-          statusMsg.innerHTML = `<span style="color:var(--gold);font-size:12px;font-weight:600"><span class="spinner" style="width:12px;height:12px;display:inline-block;vertical-align:middle;margin-right:4px"></span> Verifying code...</span>`;
+          statusMsg.innerHTML = `<span style="color:var(--goldtxt);font-size:12px;font-weight:700"><span class="spinner" style="width:12px;height:12px;display:inline-block;vertical-align:middle;margin-right:4px"></span> Verifying code...</span>`;
           statusMsg.style.display = "block";
         }
         await window.onboardingActivate2FA(cleaned);
@@ -371,7 +374,7 @@ function updateOnboardingDriveStatus(isConnected) {
     }
     if (card) card.classList.add("completed");
     if (btn) {
-      btn.className = "btn btn-success";
+      btn.className = "btn btn-secondary";
       btn.innerHTML = `<i class="bi bi-check2"></i> Google Account Linked`;
       btn.disabled = true;
     }
@@ -382,7 +385,7 @@ function updateOnboardingDriveStatus(isConnected) {
     }
     if (card) card.classList.remove("completed");
     if (btn) {
-      btn.className = "btn btn-primary";
+      btn.className = "btn gold";
       btn.innerHTML = `<i class="bi bi-google"></i> Connect Google Account`;
       btn.disabled = false;
     }
@@ -455,7 +458,7 @@ window.onboardingActivate2FA = async function(manualCode) {
   }
 
   if (statusMsg) {
-    statusMsg.innerHTML = `<span style="color:var(--gold);font-size:12px;font-weight:600"><span class="spinner" style="width:12px;height:12px;display:inline-block;vertical-align:middle;margin-right:4px"></span> Verifying code...</span>`;
+    statusMsg.innerHTML = `<span style="color:var(--goldtxt);font-size:12px;font-weight:700"><span class="spinner" style="width:12px;height:12px;display:inline-block;vertical-align:middle;margin-right:4px"></span> Verifying code...</span>`;
     statusMsg.style.display = "block";
   }
 
@@ -468,7 +471,7 @@ window.onboardingActivate2FA = async function(manualCode) {
     const isValid = await verifyClientTOTP(code, onboardingGeneratedSecret);
     if (!isValid) {
       if (statusMsg) {
-        statusMsg.innerHTML = `<span style="color:var(--red);font-size:12px;font-weight:600"><i class="bi bi-x-circle"></i> Incorrect code. Please check Authenticator.</span>`;
+        statusMsg.innerHTML = `<span style="color:var(--red-tx);font-size:12px;font-weight:700"><i class="bi bi-x-circle"></i> Incorrect code. Please check Authenticator.</span>`;
         statusMsg.style.display = "block";
       }
       showToast("Incorrect code. Check Authenticator and try again.", "error");
@@ -479,7 +482,6 @@ window.onboardingActivate2FA = async function(manualCode) {
       return;
     }
 
-    // Code is valid! Display confirmed state immediately
     if (statusMsg) {
       statusMsg.innerHTML = `<span style="color:var(--green);font-size:12.5px;font-weight:700"><i class="bi bi-check-circle-fill"></i> Code confirmed! Activating 2FA...</span>`;
       statusMsg.style.display = "block";
@@ -527,7 +529,7 @@ window.onboardingActivate2FA = async function(manualCode) {
     }
     if (content) {
       content.innerHTML = `
-        <div style="font-size:12.5px;color:var(--green);font-weight:700;display:flex;align-items:center;gap:8px;padding:12px;background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.3);border-radius:10px">
+        <div style="font-size:12.5px;color:var(--green);font-weight:700;display:flex;align-items:center;gap:8px;padding:12px;background:rgba(94,224,181,0.08);border:1px solid rgba(94,224,181,0.3);border-radius:10px">
           <i class="bi bi-shield-fill-check" style="font-size:18px"></i> 2FA Active: Protected by Microsoft Authenticator.
         </div>
       `;
@@ -540,7 +542,7 @@ window.onboardingActivate2FA = async function(manualCode) {
   } catch (err) {
     console.error("onboardingActivate2FA error:", err);
     if (statusMsg) {
-      statusMsg.innerHTML = `<span style="color:var(--red);font-size:11.5px">${err.message}</span>`;
+      statusMsg.innerHTML = `<span style="color:var(--red-tx);font-size:11.5px">${err.message}</span>`;
       statusMsg.style.display = "block";
     }
     showToast("Activation failed: " + err.message, "error");
@@ -610,17 +612,17 @@ function renderModalCalendarUI() {
   if (!modal) return;
 
   modal.innerHTML = `
-    <div class="modal-box" style="max-width: 500px; padding: 22px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;border-bottom:1px solid var(--border);padding-bottom:10px">
-        <div style="font-size:17px;font-weight:700;color:var(--gold-light);display:flex;align-items:center;gap:8px">
-          <i class="bi bi-calendar2-range-fill"></i> Set Personal Schedule
+    <div class="modal-box" style="max-width: 500px; padding: 24px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;border-bottom:1px solid var(--line);padding-bottom:10px">
+        <div style="font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--head);display:flex;align-items:center;gap:8px">
+          <i class="bi bi-calendar2-range-fill" style="color:var(--gold)"></i> Set Personal Schedule
         </div>
-        <button onclick="window.closeBusyModal()" style="background:none;border:none;color:var(--text-dim);font-size:18px;cursor:pointer"><i class="bi bi-x-lg"></i></button>
+        <button onclick="window.closeBusyModal()" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer"><i class="bi bi-x-lg"></i></button>
       </div>
 
-      <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px">
+      <div style="font-size:12.5px;color:var(--muted);margin-bottom:14px">
         Click dates to toggle your schedule.<br>
-        <span style="color:var(--red)"><i class="bi bi-circle-fill" style="font-size:8px"></i> Red</span> = Out of Office / In Court. Click again to clear.
+        <span style="color:var(--red-tx)"><i class="bi bi-circle-fill" style="font-size:8px"></i> Red</span> = Out of Office / In Court. Click again to clear.
       </div>
 
       <!-- Quick Preset Buttons -->
@@ -632,15 +634,15 @@ function renderModalCalendarUI() {
       </div>
 
       <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:16px">
-        <div>
-          <label class="field-label">Schedule Label / Activity *</label>
-          <input class="field-input" id="busy-title" value="In Court / Out of Office" autocomplete="off"/>
+        <div class="field">
+          <label>Schedule Label / Activity *</label>
+          <input class="input" id="busy-title" value="In Court / Out of Office" autocomplete="off"/>
         </div>
 
         <!-- Interactive Calendar Container -->
-        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-            <div style="font-size:13.5px;font-weight:700;color:var(--gold)" id="modal-cal-month-title">Month Year</div>
+        <div style="background:var(--inset);border:1px solid var(--line2);border-radius:14px;padding:14px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div style="font-size:14px;font-weight:700;color:var(--goldtxt)" id="modal-cal-month-title">Month Year</div>
             <div style="display:flex;gap:4px">
               <button type="button" class="btn btn-secondary btn-sm" onclick="window.prevModalCalMonth()"><i class="bi bi-chevron-left"></i></button>
               <button type="button" class="btn btn-secondary btn-sm" onclick="window.todayModalCalMonth()">Today</button>
@@ -652,38 +654,38 @@ function renderModalCalendarUI() {
           <div class="cal-grid" id="modal-calendar-grid" style="display:grid !important;grid-template-columns:repeat(7, minmax(0, 1fr)) !important;gap:4px"></div>
 
           <!-- Removable Date Chips -->
-          <div id="modal-busy-chips-wrap" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;padding-top:8px;border-top:1px dashed var(--border);min-height:28px;align-items:center"></div>
+          <div id="modal-busy-chips-wrap" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line2);min-height:28px;align-items:center"></div>
         </div>
 
         <!-- Time Settings -->
         <div style="display:flex;align-items:center;gap:12px">
-          <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer">
+          <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--text);cursor:pointer">
             <input type="checkbox" id="busy-all-day" checked onchange="window.toggleBusyTimeInputs(this.checked)" style="accent-color:var(--gold)"/> All Day Block
           </label>
         </div>
 
-        <div class="grid2" id="busy-time-container" style="display:none">
-          <div>
-            <label class="field-label">Start Time</label>
-            <input type="time" class="field-input" id="busy-start-time" value="08:30"/>
+        <div class="field-grid" id="busy-time-container" style="display:none">
+          <div class="field">
+            <label>Start Time</label>
+            <input type="time" class="input" id="busy-start-time" value="08:30"/>
           </div>
-          <div>
-            <label class="field-label">End Time</label>
-            <input type="time" class="field-input" id="busy-end-time" value="17:00"/>
+          <div class="field">
+            <label>End Time</label>
+            <input type="time" class="input" id="busy-end-time" value="17:00"/>
           </div>
         </div>
 
-        <div>
-          <label class="field-label">Description / Venue</label>
-          <input class="field-input" id="busy-notes" placeholder="Enter schedule description or venue..."/>
+        <div class="field">
+          <label>Description / Venue</label>
+          <input class="input" id="busy-notes" placeholder="Enter schedule description or venue..."/>
         </div>
       </div>
 
-      <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);padding-top:14px">
-        <span style="font-size:11px;color:var(--text-dim)">Saves to your private account</span>
+      <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:14px">
+        <span style="font-size:11.5px;color:var(--muted)">Saves to your private account</span>
         <div style="display:flex;gap:8px">
           <button class="btn btn-ghost" type="button" onclick="window.closeBusyModal()">Cancel</button>
-          <button class="btn btn-primary" type="button" id="busy-submit-btn" onclick="window.submitBusyDates()"><i class="bi bi-check2"></i> Save Schedule</button>
+          <button class="btn gold" type="button" id="busy-submit-btn" onclick="window.submitBusyDates()"><i class="bi bi-check2"></i> Save Schedule</button>
         </div>
       </div>
     </div>
@@ -764,13 +766,13 @@ function renderModalCalendarGrid() {
   const todayStr = new Date().toISOString().split("T")[0];
 
   let html = `
-    <div class="cal-day-header">Sun</div><div class="cal-day-header">Mon</div><div class="cal-day-header">Tue</div>
-    <div class="cal-day-header">Wed</div><div class="cal-day-header">Thu</div><div class="cal-day-header">Fri</div><div class="cal-day-header">Sat</div>
+    <div class="cal-head">Sun</div><div class="cal-head">Mon</div><div class="cal-head">Tue</div>
+    <div class="cal-head">Wed</div><div class="cal-head">Thu</div><div class="cal-head">Fri</div><div class="cal-head">Sat</div>
   `;
 
   for (let i = firstDay - 1; i >= 0; i--) {
     const prevDayNum = prevMonthDays - i;
-    html += `<div class="cal-day-cell other-month" style="min-height:36px;opacity:0.35;min-width:0;overflow:hidden"><span class="cal-day-num" style="white-space:nowrap">${prevDayNum}</span></div>`;
+    html += `<div class="cal-day other" style="min-height:36px;opacity:0.35"><span style="white-space:nowrap">${prevDayNum}</span></div>`;
   }
 
   for (let d = 1; d <= daysInMonth; d++) {
@@ -781,25 +783,25 @@ function renderModalCalendarGrid() {
     const isPast = fullDate < todayStr;
     const isSelected = selectedBusyDates.has(fullDate);
 
-    let cellBg = "var(--surface)";
-    let borderColor = "var(--border)";
+    let cellBg = "var(--field)";
+    let borderColor = "var(--line2)";
     let numColor = "var(--text)";
 
     if (isSelected) {
-      cellBg = "rgba(248, 113, 113, 0.24)";
-      borderColor = "var(--red)";
-      numColor = "var(--red)";
+      cellBg = "var(--red-bg)";
+      borderColor = "var(--red-tx)";
+      numColor = "var(--red-tx)";
     } else if (isPast) {
       cellBg = "transparent";
-      numColor = "var(--text-dim)";
+      numColor = "var(--muted)";
     }
 
     html += `
-      <div class="cal-day-cell ${isPast ? 'is-past' : ''}" 
-           style="min-height:36px;padding:4px;background:${cellBg};border-color:${borderColor};cursor:${isPast ? 'not-allowed' : 'pointer'};min-width:0;overflow:hidden"
+      <div class="cal-day ${isPast ? 'other' : ''}" 
+           style="min-height:36px;padding:4px;background:${cellBg};border-color:${borderColor};cursor:${isPast ? 'not-allowed' : 'pointer'}"
            onclick="${isPast ? '' : `window.toggleBusyDateSelection('${fullDate}')`}">
-        <span class="cal-day-num" style="color:${numColor};font-size:11px;white-space:nowrap">${d}</span>
-        ${isSelected ? `<span style="font-size:8px;font-weight:700;color:var(--red);text-align:right">BUSY</span>` : ''}
+        <span style="color:${numColor};font-size:11px;font-weight:700">${d}</span>
+        ${isSelected ? `<span style="font-size:8px;font-weight:800;color:var(--red-tx);text-align:right">BUSY</span>` : ''}
       </div>
     `;
   }
@@ -807,21 +809,21 @@ function renderModalCalendarGrid() {
   const totalCells = firstDay + daysInMonth;
   const rem = (7 - (totalCells % 7)) % 7;
   for (let i = 1; i <= rem; i++) {
-    html += `<div class="cal-day-cell other-month" style="min-height:36px;opacity:0.35;min-width:0;overflow:hidden"><span class="cal-day-num" style="white-space:nowrap">${i}</span></div>`;
+    html += `<div class="cal-day other" style="min-height:36px;opacity:0.35"><span style="white-space:nowrap">${i}</span></div>`;
   }
 
   gridEl.innerHTML = html;
 
   if (chipsWrap) {
     if (selectedBusyDates.size === 0) {
-      chipsWrap.innerHTML = `<span style="font-size:11px;color:var(--text-dim);font-style:italic">Click calendar dates above to select</span>`;
+      chipsWrap.innerHTML = `<span style="font-size:11.5px;color:var(--muted);font-style:italic">Click calendar dates above to select</span>`;
     } else {
       const sorted = [...selectedBusyDates].sort();
       chipsWrap.innerHTML = sorted.map(d => {
         const parts = d.split("-");
         const label = `${monthNames[parseInt(parts[1])-1].slice(0,3)} ${parseInt(parts[2])}`;
         return `
-          <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(248,113,113,0.15);border:1px solid rgba(248,113,113,0.35);color:#fca5a5;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:600">
+          <span style="display:inline-flex;align-items:center;gap:4px;background:var(--red-bg);border:1px solid var(--red-tx);color:var(--red-tx);padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700">
             ${label}
             <i class="bi bi-x" style="cursor:pointer" onclick="window.toggleBusyDateSelection('${d}')"></i>
           </span>
@@ -924,7 +926,7 @@ window.deleteBusySlot = function(id) {
 };
 
 // ═══════════════════════════════════════════════════════════════
-//  CALENDAR MONTH VIEW (PROPORTIONATE 7-COLUMN FLUID GRID)
+//  CALENDAR MONTH VIEW (2.0 FLUID GRID WITH LEGEND)
 // ═══════════════════════════════════════════════════════════════
 let currentCalYear = new Date().getFullYear();
 let currentCalMonth = new Date().getMonth();
@@ -957,27 +959,6 @@ function renderCalendarView() {
       select.innerHTML = optionsHtml;
       select.value = curVal || "Everyone";
     }
-  }
-
-  let legendBar = document.getElementById("calendar-legend-bar");
-  const calCard = document.getElementById("calendar-month-card");
-
-  if (!legendBar && calCard) {
-    legendBar = document.createElement("div");
-    legendBar.id = "calendar-legend-bar";
-    legendBar.style.cssText = "display:flex;align-items:center;gap:14px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:8px 14px;margin-bottom:14px;flex-wrap:wrap;font-size:11.5px;";
-    calCard.parentNode.insertBefore(legendBar, calCard);
-  }
-
-  if (legendBar) {
-    legendBar.innerHTML = `
-      <span style="font-weight:700;color:var(--text);display:flex;align-items:center;gap:5px"><i class="bi bi-info-circle" style="color:var(--gold)"></i> Legend:</span>
-      <span style="display:inline-flex;align-items:center;gap:4px;color:var(--gold-light)"><i class="bi bi-bank" style="color:var(--gold)"></i> Court Hearing</span>
-      <span style="display:inline-flex;align-items:center;gap:4px;color:#c7d2fe"><i class="bi bi-file-earmark-text-fill" style="color:var(--violet)"></i> Pleading Deadline</span>
-      <span style="display:inline-flex;align-items:center;gap:4px;color:#fca5a5"><i class="bi bi-slash-circle-fill" style="color:var(--red)"></i> Out of Office / In Court</span>
-      <span style="display:inline-flex;align-items:center;gap:4px;color:#86efac"><i class="bi bi-people-fill" style="color:var(--green)"></i> Consultation</span>
-      <span style="font-size:10.5px;color:var(--text-dim);margin-left:auto"><i class="bi bi-person-circle"></i> Counsel Badge</span>
-    `;
   }
 
   renderMonthlyCalendarGrid();
@@ -1072,7 +1053,7 @@ function renderMonthlyCalendarGrid() {
     const hasAccess = isOwner || isExplicitlyShared || isAllowed || isFirmAdmin;
 
     const attorneyInitials = p ? initials(p.name) : "AT";
-    const attorneyColor = p?.avatarColor || "#c9a84c";
+    const attorneyColor = p?.avatarColor || "var(--gold)";
 
     if (c.docDueDate) {
       if (!eventsByDate[c.docDueDate]) eventsByDate[c.docDueDate] = [];
@@ -1134,7 +1115,7 @@ function renderMonthlyCalendarGrid() {
     const isBusy = a.type === "busy";
     const targetProf = profiles.find(p => p.ownerUid === (a.targetUid || a.requesterUid || a.ownerUid));
     const attorneyInitials = targetProf ? initials(targetProf.name) : (isDeveloper ? "DV" : "AT");
-    const attorneyColor = targetProf?.avatarColor || (isDeveloper ? "var(--cyan)" : "#ef4444");
+    const attorneyColor = targetProf?.avatarColor || (isDeveloper ? "var(--cyan)" : "var(--red-tx)");
 
     eventsByDate[a.date].push({ 
       id: a.id, 
@@ -1157,23 +1138,16 @@ function renderMonthlyCalendarGrid() {
   const todayD = String(todayObj.getDate()).padStart(2, '0');
   const todayStr = `${todayY}-${todayM}-${todayD}`;
 
-  gridEl.style.cssText = "display:grid !important;grid-template-columns:repeat(7, minmax(0, 1fr)) !important;gap:4px;width:100%;box-sizing:border-box;margin-bottom:28px";
-
   let html = `
-    <div class="cal-day-header" style="text-align:center;font-size:11px;font-weight:700;color:var(--text-dim);padding:6px 0;text-transform:uppercase;letter-spacing:1px">Sun</div>
-    <div class="cal-day-header" style="text-align:center;font-size:11px;font-weight:700;color:var(--text-dim);padding:6px 0;text-transform:uppercase;letter-spacing:1px">Mon</div>
-    <div class="cal-day-header" style="text-align:center;font-size:11px;font-weight:700;color:var(--text-dim);padding:6px 0;text-transform:uppercase;letter-spacing:1px">Tue</div>
-    <div class="cal-day-header" style="text-align:center;font-size:11px;font-weight:700;color:var(--text-dim);padding:6px 0;text-transform:uppercase;letter-spacing:1px">Wed</div>
-    <div class="cal-day-header" style="text-align:center;font-size:11px;font-weight:700;color:var(--text-dim);padding:6px 0;text-transform:uppercase;letter-spacing:1px">Thu</div>
-    <div class="cal-day-header" style="text-align:center;font-size:11px;font-weight:700;color:var(--text-dim);padding:6px 0;text-transform:uppercase;letter-spacing:1px">Fri</div>
-    <div class="cal-day-header" style="text-align:center;font-size:11px;font-weight:700;color:var(--text-dim);padding:6px 0;text-transform:uppercase;letter-spacing:1px">Sat</div>
+    <div class="cal-head">Sun</div><div class="cal-head">Mon</div><div class="cal-head">Tue</div>
+    <div class="cal-head">Wed</div><div class="cal-head">Thu</div><div class="cal-head">Fri</div><div class="cal-head">Sat</div>
   `;
 
   for (let i = startingDayOfWeek - 1; i >= 0; i--) {
     const dayNum = prevMonthDays - i;
     html += `
-      <div class="cal-day-cell other-month" style="min-height:90px;opacity:0.35;min-width:0;overflow:hidden;box-sizing:border-box;padding:6px;border:1px solid var(--border);border-radius:10px;background:transparent">
-        <span class="cal-day-num" style="font-size:12px;font-weight:700;color:var(--text-dim);white-space:nowrap">${dayNum}</span>
+      <div class="cal-day other" style="min-height:92px;opacity:0.35">
+        <span style="font-size:12px;font-weight:700;color:var(--muted)">${dayNum}</span>
       </div>
     `;
   }
@@ -1192,35 +1166,33 @@ function renderMonthlyCalendarGrid() {
       const topTwo = dayEvents.slice(0, 2);
       const remainingCount = dayEvents.length - 2;
 
-      eventsMarkup = `<div style="display:flex;flex-direction:column;gap:3px;margin-top:4px;overflow:hidden;width:100%;min-width:0">`;
+      eventsMarkup = `<div style="display:flex;flex-direction:column;gap:3px;margin-top:4px">`;
       
       topTwo.forEach(ev => {
-        let bgStyle = "background:rgba(201,165,92,0.18);color:var(--gold-light);border:1px solid var(--gold-border);";
-        let iconMarkup = `<i class="bi bi-bank" style="font-size:8.5px;flex-shrink:0"></i>`;
+        let pillClass = "chip gold";
+        let iconMarkup = `<i class="bi bi-bank" style="font-size:9px"></i>`;
 
         if (ev.type === "deadline") {
-          bgStyle = "background:rgba(129,140,248,0.18);color:#c7d2fe;border:1px solid rgba(129,140,248,0.3);";
-          iconMarkup = `<i class="bi bi-file-earmark-text-fill" style="font-size:8.5px;flex-shrink:0"></i>`;
+          pillClass = "chip blue";
+          iconMarkup = `<i class="bi bi-file-earmark-text-fill" style="font-size:9px"></i>`;
         } else if (ev.type === "busy") {
-          bgStyle = "background:rgba(248,113,113,0.18);color:#fca5a5;border:1px solid rgba(248,113,113,0.3);";
-          iconMarkup = `<i class="bi bi-slash-circle-fill" style="font-size:8.5px;flex-shrink:0"></i>`;
+          pillClass = "chip red";
+          iconMarkup = `<i class="bi bi-slash-circle-fill" style="font-size:9px"></i>`;
         } else if (ev.type === "appt") {
-          bgStyle = "background:rgba(52,211,153,0.18);color:#86efac;border:1px solid rgba(52,211,153,0.3);";
-          iconMarkup = `<i class="bi bi-people-fill" style="font-size:8.5px;flex-shrink:0"></i>`;
+          pillClass = "chip green";
+          iconMarkup = `<i class="bi bi-people-fill" style="font-size:9px"></i>`;
         }
 
         eventsMarkup += `
-          <div style="display:flex;align-items:center;gap:3px;font-size:9.5px;font-weight:700;padding:2px 5px;border-radius:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;min-width:0;box-sizing:border-box;${bgStyle}" title="${escHtml(ev.title)}">
-            <span style="width:13px;height:13px;border-radius:50%;background:${ev.avatarColor};font-size:7px;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0">${ev.initials}</span>
-            ${iconMarkup}
-            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0">${escHtml(ev.title)}</span>
+          <div class="${pillClass}" style="padding:2px 6px;border-radius:4px;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${escHtml(ev.title)}">
+            ${iconMarkup} <span>${escHtml(ev.title)}</span>
           </div>
         `;
       });
 
       if (remainingCount > 0) {
         eventsMarkup += `
-          <div style="font-size:8.5px;font-weight:700;color:var(--gold-light);background:rgba(255,255,255,0.06);border:1px solid var(--border);padding:1px 4px;border-radius:3px;text-align:center;margin-top:1px;white-space:nowrap">
+          <div style="font-size:9px;font-weight:700;color:var(--goldtxt);background:var(--field);border:1px solid var(--line2);padding:1px 4px;border-radius:3px;text-align:center">
             +${remainingCount} more
           </div>
         `;
@@ -1229,15 +1201,14 @@ function renderMonthlyCalendarGrid() {
       eventsMarkup += `</div>`;
     }
 
-    const todayTag = isToday ? `<span style="font-size:8.5px;background:var(--gold);color:#060c13;font-weight:800;padding:1px 4px;border-radius:3px;letter-spacing:0.5px;flex-shrink:0">TODAY</span>` : "";
+    const todayTag = isToday ? `<span class="chip gold" style="font-size:8px;padding:1px 4px">TODAY</span>` : "";
 
     html += `
-      <div class="cal-day-cell ${isToday ? 'is-today' : ''} ${isPast ? 'is-past' : ''}" 
-           style="min-height:90px;padding:6px;display:flex;flex-direction:column;justify-content:flex-start;min-width:0;overflow:hidden;box-sizing:border-box;border:1px solid var(--border);border-radius:10px;background:var(--surface2);transition:all 0.2s"
+      <div class="cal-day ${isToday ? 'today' : ''} ${isPast ? 'other' : ''}" 
            onclick="openDateScheduleModal('${fullDateStr}')" 
            title="${isToday ? "Today's Schedule" : isPast ? "Past Date (View Only)" : "Click to view schedule"}">
-        <div style="display:flex;align-items:center;justify-content:space-between;width:100%;min-width:0">
-          <span class="cal-day-num" style="font-size:12.5px;font-weight:700;color:var(--text);white-space:nowrap;word-break:normal;overflow-wrap:normal">${day}</span>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <span style="font-size:12.5px;font-weight:700;color:var(--head)">${day}</span>
           ${todayTag}
         </div>
         ${eventsMarkup}
@@ -1249,8 +1220,8 @@ function renderMonthlyCalendarGrid() {
   const remainingCells = (7 - (totalCells % 7)) % 7;
   for (let i = 1; i <= remainingCells; i++) {
     html += `
-      <div class="cal-day-cell other-month" style="min-height:90px;opacity:0.35;min-width:0;overflow:hidden;box-sizing:border-box;padding:6px;border:1px solid var(--border);border-radius:10px;background:transparent">
-        <span class="cal-day-num" style="font-size:12px;font-weight:700;color:var(--text-dim);white-space:nowrap">${i}</span>
+      <div class="cal-day other" style="min-height:92px;opacity:0.35">
+        <span style="font-size:12px;font-weight:700;color:var(--muted)">${i}</span>
       </div>
     `;
   }
@@ -1277,8 +1248,8 @@ window.openDateScheduleModal = function(dateStr) {
   const isToday = dateStr === todayStr;
 
   let headerBadge = "";
-  if (isToday) headerBadge = ` <span style="font-size:10px;background:var(--gold);color:#060c13;font-weight:800;padding:2px 6px;border-radius:4px">TODAY</span>`;
-  else if (isPast) headerBadge = ` <span style="font-size:10px;background:var(--surface3);color:var(--text-dim);font-weight:600;padding:2px 6px;border-radius:4px">PAST DATE</span>`;
+  if (isToday) headerBadge = ` <span class="chip gold" style="font-size:9.5px;padding:2px 6px">TODAY</span>`;
+  else if (isPast) headerBadge = ` <span class="chip plain" style="font-size:9.5px;padding:2px 6px">PAST DATE</span>`;
 
   if (titleEl) titleEl.innerHTML = `<i class="bi bi-calendar3" style="color:var(--gold);margin-right:6px"></i> Schedule for ${formattedDate}${headerBadge}`;
 
@@ -1342,7 +1313,7 @@ window.openDateScheduleModal = function(dateStr) {
         time: specificHearing.time || "8:30 AM",
         venue: c.venue || "Courtroom / Venue N/A",
         attorneyName: p?.name || "Attorney",
-        attorneyColor: p?.avatarColor || "#c9a84c",
+        attorneyColor: p?.avatarColor || "var(--gold)",
         photoUrl: p?.photoUrl || null,
         description: hasAccess ? (specificHearing.notes || specificHearing.purpose || c.narrative || "") : "Confidential attorney-client information.",
         isOwner: isOwner,
@@ -1359,13 +1330,13 @@ window.openDateScheduleModal = function(dateStr) {
         subId: specificDeadline?.id || "d_default",
         kind: "deadline",
         hasAccess: hasAccess,
-        badgeColor: "var(--violet)",
+        badgeColor: "var(--blue-tx)",
         badgeLabel: "Pleading Deadline",
         title: hasAccess ? `${c.title} — ${dSubtype}` : `Filing Deadline (${p?.name || 'Associate Attorney'})`,
         time: "Filing Deadline",
         venue: c.venue || "Courtroom / Venue N/A",
         attorneyName: p?.name || "Attorney",
-        attorneyColor: p?.avatarColor || "#818cf8",
+        attorneyColor: p?.avatarColor || "var(--blue)",
         photoUrl: p?.photoUrl || null,
         description: hasAccess ? dNotes : "Confidential attorney-client filing deadline.",
         isOwner: isOwner,
@@ -1385,13 +1356,13 @@ window.openDateScheduleModal = function(dateStr) {
       id: a.id,
       kind: isBusy ? "busy" : "appt",
       hasAccess: true,
-      badgeColor: isBusy ? "var(--red)" : "var(--green)",
+      badgeColor: isBusy ? "var(--red-tx)" : "var(--green)",
       badgeLabel: isBusy ? "Out of Office / Busy" : "Appointment",
       title: a.title,
       time: a.time || "All Day",
       venue: "",
       attorneyName: a.targetName || (isDeveloper ? "Developer" : "Attorney"),
-      attorneyColor: targetProf?.avatarColor || (isDeveloper ? "var(--cyan)" : "#ef4444"),
+      attorneyColor: targetProf?.avatarColor || (isDeveloper ? "var(--cyan)" : "var(--red-tx)"),
       photoUrl: targetProf?.photoUrl || null,
       description: a.description || "",
       canDelete: isOwner,
@@ -1401,9 +1372,9 @@ window.openDateScheduleModal = function(dateStr) {
 
   if (allItems.length === 0) {
     listEl.innerHTML = `
-      <div class="empty-state" style="padding:28px 14px">
+      <div class="empty-state" style="padding:28px 14px;text-align:center">
         <div class="empty-state-icon" style="font-size:32px;margin-bottom:8px;color:var(--gold)"><i class="bi bi-calendar-x"></i></div>
-        <div style="font-size:13px;color:var(--text-muted)">
+        <div style="font-size:13px;color:var(--muted)">
           ${isPast ? "No past events recorded for this date." : "No hearings or schedule blocks on this date."}
         </div>
       </div>
@@ -1423,7 +1394,7 @@ window.openDateScheduleModal = function(dateStr) {
           `;
         } else {
           actionMarkup = `
-            <div style="margin-top:8px;font-size:11px;color:var(--text-dim);display:flex;align-items:center;gap:4px">
+            <div style="margin-top:8px;font-size:11px;color:var(--muted);display:flex;align-items:center;gap:4px">
               <i class="bi bi-lock-fill" style="color:var(--amber)"></i> Case restricted. Only authorized attorneys may view full case files.
             </div>
           `;
@@ -1431,7 +1402,7 @@ window.openDateScheduleModal = function(dateStr) {
       } else if (item.canDelete) {
         actionMarkup = `
           <div style="display:flex;justify-content:flex-end;margin-top:8px">
-            <button class="btn btn-ghost btn-sm" style="color:var(--red);padding:2px 6px" onclick="window.deleteBusySlot('${item.id}')">
+            <button class="btn btn-ghost btn-sm" style="color:var(--red-tx);padding:2px 6px" onclick="window.deleteBusySlot('${item.id}')">
               <i class="bi bi-trash3"></i> Remove
             </button>
           </div>
@@ -1441,13 +1412,13 @@ window.openDateScheduleModal = function(dateStr) {
       let descriptionBlock = "";
       if (item.canEditDesc) {
         descriptionBlock = `
-          <div style="margin-top:10px;background:var(--surface3);border:1px solid var(--border);border-radius:9px;padding:10px 12px">
-            <label style="font-size:11px;text-transform:uppercase;color:var(--gold-light);font-weight:700;display:flex;align-items:center;gap:5px;margin-bottom:6px">
+          <div style="margin-top:10px;background:var(--inset);border:1px solid var(--line2);border-radius:10px;padding:10px 12px">
+            <label style="font-size:11px;text-transform:uppercase;color:var(--goldtxt);font-weight:700;display:flex;align-items:center;gap:5px;margin-bottom:6px">
               <i class="bi bi-card-text"></i> Description:
             </label>
-            <textarea id="dsm-desc-${item.id}-${item.subId || ''}" class="field-input" style="font-size:12.5px;min-height:56px;padding:8px 10px;resize:vertical" placeholder="Enter schedule description...">${escHtml(item.description || "")}</textarea>
+            <textarea id="dsm-desc-${item.id}-${item.subId || ''}" class="input" style="font-size:12.5px;min-height:56px;padding:8px 10px;resize:vertical" placeholder="Enter schedule description...">${escHtml(item.description || "")}</textarea>
             <div style="display:flex;justify-content:flex-end;margin-top:8px">
-              <button class="btn btn-primary btn-sm" type="button" onclick="saveEventInlineDescription('${item.kind}', '${item.id}', '${dateStr}', '${item.subId || ''}')" style="font-size:11.5px;padding:4px 12px">
+              <button class="btn gold btn-sm" type="button" onclick="saveEventInlineDescription('${item.kind}', '${item.id}', '${dateStr}', '${item.subId || ''}')" style="font-size:11.5px;padding:4px 12px">
                 <i class="bi bi-check2"></i> Save Description
               </button>
             </div>
@@ -1455,31 +1426,31 @@ window.openDateScheduleModal = function(dateStr) {
         `;
       } else if (item.description) {
         descriptionBlock = `
-          <div style="margin-top:10px;background:var(--surface3);border:1px solid var(--border);border-radius:9px;padding:10px 12px">
-            <div style="font-size:10.5px;text-transform:uppercase;color:var(--text-dim);font-weight:700;margin-bottom:4px">Description:</div>
+          <div style="margin-top:10px;background:var(--inset);border:1px solid var(--line2);border-radius:10px;padding:10px 12px">
+            <div style="font-size:10.5px;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:4px">Description:</div>
             <div style="font-size:12.5px;color:var(--text);line-height:1.5;white-space:pre-wrap">${escHtml(item.description)}</div>
           </div>
         `;
       }
 
       return `
-        <div style="background:var(--surface2);border:1px solid var(--border);border-left:4px solid ${item.badgeColor};border-radius:12px;padding:14px 16px;margin-bottom:12px">
+        <div style="background:var(--inset);border:1px solid var(--line2);border-left:4px solid ${item.badgeColor};border-radius:14px;padding:14px 16px;margin-bottom:12px">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-            <span style="font-size:10.5px;font-weight:700;color:${item.badgeColor};background:${item.badgeColor}18;padding:2px 8px;border-radius:4px">
+            <span class="chip plain" style="font-size:10px;color:${item.badgeColor}">
               ${item.badgeLabel}
             </span>
-            <span style="font-size:11.5px;color:var(--gold-light);font-weight:700"><i class="bi bi-clock"></i> ${item.time}</span>
+            <span style="font-size:11.5px;color:var(--goldtxt);font-weight:700"><i class="bi bi-clock"></i> ${item.time}</span>
           </div>
 
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
             ${avatarDiv(item.attorneyName, item.attorneyColor, 32, item.photoUrl)}
             <div>
-              <div style="font-size:14px;font-weight:700;color:var(--text)">${escHtml(item.title)}</div>
-              <div style="font-size:11.5px;color:var(--text-muted)"><strong>${isDeveloper ? 'Developer' : 'Counsel'}:</strong> ${escHtml(item.attorneyName)}</div>
+              <div style="font-size:14px;font-weight:700;color:var(--head)">${escHtml(item.title)}</div>
+              <div style="font-size:11.5px;color:var(--muted)"><strong>${isDeveloper ? 'Developer' : 'Counsel'}:</strong> ${escHtml(item.attorneyName)}</div>
             </div>
           </div>
           
-          ${item.venue ? `<div style="font-size:11.5px;color:var(--text-dim);margin-bottom:4px"><i class="bi bi-geo-alt-fill" style="color:var(--gold)"></i> ${escHtml(item.venue)}</div>` : ''}
+          ${item.venue ? `<div style="font-size:11.5px;color:var(--muted);margin-bottom:4px"><i class="bi bi-geo-alt-fill" style="color:var(--gold)"></i> ${escHtml(item.venue)}</div>` : ''}
 
           ${descriptionBlock}
           ${actionMarkup}
@@ -1612,27 +1583,27 @@ async function updateWorkspaceStatus(manualRun = false) {
 
   if (netBadge && netSub) {
     if (isNetworkOk) {
-      netBadge.className = "badge badge-pass";
-      netBadge.innerHTML = `<i class="bi bi-wifi" style="color:var(--green)"></i> Online`;
+      netBadge.className = "chip green";
+      netBadge.innerHTML = `<i class="bi bi-wifi"></i> Online`;
       netSub.textContent = "Active internet connection detected";
     } else {
-      netBadge.className = "badge badge-fail";
-      netBadge.innerHTML = `<i class="bi bi-wifi-off" style="color:var(--red)"></i> Offline`;
+      netBadge.className = "chip red";
+      netBadge.innerHTML = `<i class="bi bi-wifi-off"></i> Offline`;
       netSub.textContent = "No network connection. Offline changes won't sync.";
     }
   }
 
   if (dbBadge && dbSub) {
     if (isDbOk) {
-      dbBadge.className = "badge badge-pass";
-      dbBadge.innerHTML = `<i class="bi bi-database-check" style="color:var(--green)"></i> Connected`;
+      dbBadge.className = "chip green";
+      dbBadge.innerHTML = `<i class="bi bi-database-check"></i> Connected`;
       dbSub.textContent = "Firestore real-time listeners synchronized (Long Polling)";
     } else if (localMode) {
-      dbBadge.className = "badge badge-warn";
-      dbBadge.innerHTML = `<i class="bi bi-hdd-network" style="color:var(--amber)"></i> Memory Mode`;
+      dbBadge.className = "chip gold";
+      dbBadge.innerHTML = `<i class="bi bi-hdd-network"></i> Memory Mode`;
       dbSub.textContent = "Running in memory. Data will not persist on refresh.";
     } else {
-      dbBadge.className = "badge badge-fail";
+      dbBadge.className = "chip red";
       dbBadge.innerHTML = `<i class="bi bi-arrow-repeat"></i> Connecting...`;
       dbSub.textContent = "Waiting for cloud database handshake.";
     }
@@ -1640,16 +1611,16 @@ async function updateWorkspaceStatus(manualRun = false) {
 
   if (driveBadge && driveSub) {
     if (isDriveOk && hasDriveFolder) {
-      driveBadge.className = "badge badge-pass";
-      driveBadge.innerHTML = `<i class="bi bi-cloud-check-fill" style="color:var(--green)"></i> Linked`;
+      driveBadge.className = "chip green";
+      driveBadge.innerHTML = `<i class="bi bi-cloud-check-fill"></i> Linked`;
       driveSub.textContent = "OAuth active · Dedicated firm storage folder verified";
     } else if (isDriveOk && !hasDriveFolder) {
-      driveBadge.className = "badge badge-warn";
-      driveBadge.innerHTML = `<i class="bi bi-folder-x" style="color:var(--amber)"></i> No Folder`;
+      driveBadge.className = "chip gold";
+      driveBadge.innerHTML = `<i class="bi bi-folder-x"></i> No Folder`;
       driveSub.textContent = "Drive connected but no root case folder created yet.";
     } else {
-      driveBadge.className = "badge badge-warn";
-      driveBadge.innerHTML = `<i class="bi bi-cloud-slash" style="color:var(--amber)"></i> Not Connected`;
+      driveBadge.className = "chip gold";
+      driveBadge.innerHTML = `<i class="bi bi-cloud-slash"></i> Not Connected`;
       driveSub.textContent = "Connect Google Account under My Settings to enable filing & docs.";
     }
   }
@@ -1659,14 +1630,14 @@ async function updateWorkspaceStatus(manualRun = false) {
     if (dot) dot.className = "status-dot danger";
     if (txt) {
       txt.textContent = "System Disconnected";
-      txt.style.color = "var(--red)";
+      txt.style.color = "var(--red-tx)";
     }
   } else if (!isDriveOk || localMode || !hasDriveFolder) {
     systemHealthStatus = "warning";
     if (dot) dot.className = "status-dot warning";
     if (txt) {
       txt.textContent = !isDriveOk ? "Connect Drive" : "Memory Mode";
-      txt.style.color = "var(--amber)";
+      txt.style.color = "var(--goldtxt)";
     }
   } else {
     systemHealthStatus = "healthy";
@@ -1699,7 +1670,7 @@ window.addEventListener("offline", () => updateWorkspaceStatus(false));
 // ═══════════════════════════════════════════════════════════════
 let pendingActionConfirmCallback = null;
 
-window.openConfirmModal = function({ icon = "bi-shield-check", title = "Confirm Action", body = "Are you sure?", confirmText = "Confirm", confirmStyle = "btn-primary", onConfirm = null }) {
+window.openConfirmModal = function({ icon = "bi-shield-check", title = "Confirm Action", body = "Are you sure?", confirmText = "Confirm", confirmStyle = "btn gold", onConfirm = null }) {
   const modal = document.getElementById("universal-confirm-modal");
   const iconEl = document.getElementById("ucm-icon");
   const titleEl = document.getElementById("ucm-title");
@@ -1717,7 +1688,7 @@ window.openConfirmModal = function({ icon = "bi-shield-check", title = "Confirm 
 
   if (btn) {
     btn.textContent = confirmText;
-    btn.className = `btn ${confirmStyle}`;
+    btn.className = confirmStyle.includes("gold") ? "btn gold" : `btn ${confirmStyle}`;
   }
 
   pendingActionConfirmCallback = onConfirm;
@@ -1891,11 +1862,11 @@ function initPasswordStrengthChecker() {
       if (rule.el) {
         const icon = rule.el.querySelector(".req-icon");
         if (passed) {
-          rule.el.style.color = "var(--green, #22c55e)";
+          rule.el.style.color = "var(--green)";
           if (icon) icon.innerHTML = `<i class="bi bi-check-circle-fill" style="color:var(--green)"></i>`;
         } else {
-          rule.el.style.color = "var(--text-dim)";
-          if (icon) icon.innerHTML = `<i class="bi bi-x-circle" style="color:var(--red)"></i>`;
+          rule.el.style.color = "var(--muted)";
+          if (icon) icon.innerHTML = `<i class="bi bi-x-circle" style="color:var(--red-tx)"></i>`;
         }
       }
     }
@@ -2035,35 +2006,41 @@ function renderDashboard() {
 
   if (dcEl) {
     dcEl.innerHTML = pagedCases.length === 0
-      ? '<div class="empty-state"><div class="empty-state-icon" style="color:var(--gold)"><i class="bi bi-folder2-open"></i></div><div>No active cases yet.</div></div>'
+      ? '<div class="empty-state" style="text-align:center;padding:40px 10px;color:var(--muted)"><div class="empty-state-icon" style="color:var(--gold);font-size:32px;margin-bottom:8px"><i class="bi bi-folder2-open"></i></div><div style="font-size:13px">No active cases yet.</div></div>'
       : pagedCases.map(c => {
         const p = profiles.find(x => x.id === c.profileId);
         const targetDue = c.dueDate || c.docDueDate;
         const daysLeft = targetDue ? Math.ceil((new Date(targetDue) - new Date()) / (1000 * 60 * 60 * 24)) : null;
         const urgency = daysLeft !== null
-          ? (daysLeft < 0   ? {col:"var(--red)",   label:"Overdue"}
-           : daysLeft === 0  ? {col:"var(--red)",   label:"Due today"}
-           : daysLeft <= 7  ? {col:"var(--red)",   label:(daysLeft === 0 ? "Due today" : daysLeft + "d left")}
-           : daysLeft <= 30 ? {col:"var(--amber)", label:daysLeft + "d left"}
-           :                  {col:"var(--text-muted)", label:daysLeft + "d left"})
+          ? (daysLeft < 0   ? {col:"var(--red-tx)",   label:"Overdue"}
+           : daysLeft === 0  ? {col:"var(--red-tx)",   label:"Due today"}
+           : daysLeft <= 7  ? {col:"var(--red-tx)",   label:(daysLeft === 0 ? "Due today" : daysLeft + "d left")}
+           : daysLeft <= 30 ? {col:"var(--goldtxt)",  label:daysLeft + "d left"}
+           :                  {col:"var(--muted)",    label:daysLeft + "d left"})
           : null;
 
-        const categoryBadge = `<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;background:rgba(201,165,92,0.12);color:var(--gold-light);border:1px solid var(--gold-border);white-space:nowrap;display:inline-block">${escHtml(c.category || "Case")}</span>`;
+        const categoryBadge = `<span class="chip gold" style="font-size:9.5px;padding:2px 6px">${escHtml(c.category || "Case")}</span>`;
 
-        return `<div class="flex-center gap-10" style="padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;margin-bottom:8px;cursor:pointer;transition:all 0.2s" onclick="openCase('${c.id}')" onmouseenter="this.style.borderColor='var(--gold)'" onmouseleave="this.style.borderColor='var(--border)'">
-          ${p ? avatarDiv(p.name, p.avatarColor, 30, p.photoUrl) : ""}
-          <div style="flex:1;min-width:0">
-            <div style="font-weight:600;font-size:13px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(c.title)}</div>
-            <div style="font-size:11px;color:var(--text-muted);margin-top:2px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-              ${categoryBadge}
-              <span>${p?.name || ""} · ${c.type || "Litigation"}</span>
+        return `
+          <div class="case-row-2" onclick="openCase('${c.id}')">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+              <div style="display:flex;gap:12px;align-items:flex-start;flex:1;min-width:0">
+                ${p ? avatarDiv(p.name, p.avatarColor, 32, p.photoUrl) : ""}
+                <div style="flex:1;min-width:0">
+                  <div style="font-weight:700;font-size:13.5px;color:var(--head);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(c.title)}</div>
+                  <div style="font-size:11.5px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+                    ${categoryBadge}
+                    <span>${p?.name || ""} · ${c.type || "Litigation"}</span>
+                  </div>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0">
+                ${badge(c.status, statusColor(c.status))}
+                ${urgency ? '<span style="font-size:10px;font-weight:700;color:' + urgency.col + '">' + urgency.label + '</span>' : ""}
+              </div>
             </div>
           </div>
-          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0">
-            ${badge(c.status, statusColor(c.status))}
-            ${urgency ? '<span style="font-size:10px;font-weight:700;color:' + urgency.col + '">' + urgency.label + '</span>' : ""}
-          </div>
-        </div>`;
+        `;
       }).join("");
   }
 
@@ -2120,7 +2097,7 @@ function renderDashProfiles() {
   }
 
   if (visible.length === 0) {
-    el.innerHTML = `<div style="text-align:center;padding:24px 10px;color:var(--text-muted);font-size:12px">${isDeveloper ? 'No other developer test accounts registered.' : 'No attorneys found.'}</div>`;
+    el.innerHTML = `<div style="text-align:center;padding:24px 10px;color:var(--muted);font-size:12px">${isDeveloper ? 'No other developer test accounts registered.' : 'No attorneys found.'}</div>`;
     return;
   }
 
@@ -2135,14 +2112,14 @@ function renderDashProfiles() {
       <div class="dash-roster-item" onclick="openProfile('${p.id}')">
         ${avatarDiv(p.name, p.avatarColor, 32, p.photoUrl)}
         <div style="flex:1;min-width:0">
-          <div style="font-weight:700;font-size:12.5px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+          <div style="font-weight:700;font-size:12.5px;color:var(--head);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
             ${escHtml(p.name)} 
-            ${isMe ? '<span style="font-size:9px;color:var(--gold);background:rgba(201,168,76,0.12);padding:1px 4px;border-radius:3px">YOU</span>' : ''}
-            ${isDev ? '<span style="font-size:9px;color:var(--cyan);background:rgba(34,211,238,0.12);padding:1px 4px;border-radius:3px">DEV</span>' : ''}
+            ${isMe ? '<span class="chip gold" style="font-size:8.5px;padding:1px 5px">YOU</span>' : ''}
+            ${isDev ? '<span class="chip blue" style="font-size:8.5px;padding:1px 5px">DEV</span>' : ''}
           </div>
-          <div style="font-size:11px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(p.role || 'Attorney')}</div>
+          <div style="font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(p.role || 'Attorney')}</div>
         </div>
-        <span class="badge" style="background:var(--surface3);color:var(--text-dim);font-size:10px">${caseCount} case${caseCount !== 1 ? 's' : ''}</span>
+        <span class="chip plain" style="font-size:10px">${caseCount} case${caseCount !== 1 ? 's' : ''}</span>
       </div>
     `;
   }).join("");
@@ -2165,8 +2142,8 @@ window.setProfilesViewMode = function(mode) {
   const listBtn = document.getElementById("btn-view-list");
 
   if (tileBtn && listBtn) {
-    tileBtn.className = mode === "tile" ? "btn btn-sm btn-secondary active" : "btn btn-sm btn-ghost";
-    listBtn.className = mode === "list" ? "btn btn-sm btn-secondary active" : "btn btn-sm btn-ghost";
+    tileBtn.className = mode === "tile" ? "btn sm btn-secondary" : "btn sm btn-ghost";
+    listBtn.className = mode === "list" ? "btn sm btn-secondary" : "btn sm btn-ghost";
   }
 
   renderProfiles();
@@ -2177,7 +2154,6 @@ function renderProfiles() {
   if (!u) return;
 
   const myProf = profiles.find(p => p.ownerUid === u.uid || (p.email && p.email.toLowerCase() === u.email.toLowerCase()));
-  const isFirmAdmin = myProf && myProf.role === "admin";
   const isDeveloper = myProf && myProf.role === "developer";
 
   let visibleProfiles = [];
@@ -2196,7 +2172,7 @@ function renderProfiles() {
   const userCases = getAccessibleCases();
 
   if (visibleProfiles.length === 0) {
-    el.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-state-icon" style="color:var(--gold)"><i class="bi bi-people"></i></div><div style="font-size:13px;color:var(--text-muted)">No profiles found.</div></div>`;
+    el.innerHTML = `<div class="empty-state" style="grid-column:1/-1;text-align:center;padding:40px"><div class="empty-state-icon" style="color:var(--gold);font-size:36px"><i class="bi bi-people"></i></div><div style="font-size:13px;color:var(--muted);margin-top:8px">No profiles found.</div></div>`;
     return;
   }
 
@@ -2212,22 +2188,22 @@ function renderProfiles() {
       const isDev = p.role === "developer";
 
       return `
-        <div class="profile-list-row" onclick="openProfile('${p.id}')" style="${isMe ? 'border-color:var(--gold-border); background:rgba(201,165,92,0.03)' : ''}">
+        <div class="card" onclick="openProfile('${p.id}')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;cursor:pointer;${isMe ? 'border-color:var(--gold-bd);background:var(--navon)' : ''}">
           <div style="display:flex;align-items:center;gap:14px;flex:1;min-width:0">
             ${avatarDiv(p.name, p.avatarColor, 38, p.photoUrl)}
             <div style="min-width:0">
-              <div style="font-weight:700;font-size:14.5px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+              <div style="font-weight:700;font-size:14.5px;color:var(--head);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
                 ${escHtml(p.name)} 
-                ${isMe ? '<span style="font-size:9.5px;color:var(--gold);background:rgba(201,168,76,0.12);padding:1px 5px;border-radius:4px;margin-left:6px;font-weight:700">YOU</span>' : ""}
-                ${isDev ? '<span style="font-size:9.5px;color:var(--cyan);background:rgba(34,211,238,0.12);padding:1px 5px;border-radius:4px;margin-left:6px;font-weight:700">DEV</span>' : ""}
+                ${isMe ? '<span class="chip gold" style="font-size:9.5px;padding:1px 5px;margin-left:6px">YOU</span>' : ""}
+                ${isDev ? '<span class="chip blue" style="font-size:9.5px;padding:1px 5px;margin-left:6px">DEV</span>' : ""}
               </div>
-              <div style="font-size:12px;color:var(--text-muted)">${escHtml(p.role || "Attorney")} · ${escHtml(p.email || "No email")}</div>
+              <div style="font-size:12px;color:var(--muted)">${escHtml(p.role || "Attorney")} · ${escHtml(p.email || "No email")}</div>
             </div>
           </div>
           <div style="display:flex;align-items:center;gap:12px;flex-shrink:0">
-            <span style="font-size:12px;color:var(--text-dim)">${pc.length} case${pc.length !== 1 ? 's' : ''}</span>
+            <span style="font-size:12px;color:var(--muted)">${pc.length} case${pc.length !== 1 ? 's' : ''}</span>
             ${ongoing > 0 ? badge(ongoing + " active", statusColor("On-going")) : ""}
-            <span style="font-size:14px;color:var(--gold)"><i class="bi bi-arrow-right"></i></span>
+            <span style="font-size:14px;color:var(--goldtxt)"><i class="bi bi-arrow-right"></i></span>
           </div>
         </div>
       `;
@@ -2244,24 +2220,25 @@ function renderProfiles() {
       const isDev = p.role === "developer";
       
       return `
-        <div class="profile-card" onclick="openProfile('${p.id}')" style="${isMe ? 'border-color:var(--gold-border); background:rgba(201,165,92,0.03)' : ''}">
-          <div class="flex-center gap-14 mb-16">
-            ${avatarDiv(p.name, p.avatarColor, 50, p.photoUrl)}
+        <div class="card" onclick="openProfile('${p.id}')" style="cursor:pointer;${isMe ? 'border-color:var(--gold-bd);background:var(--navon)' : ''}">
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
+            ${avatarDiv(p.name, p.avatarColor, 48, p.photoUrl)}
             <div>
-              <div style="font-weight:700;font-size:16px;color:var(--text)">
+              <div style="font-weight:700;font-size:15px;color:var(--head)">
                 ${escHtml(p.name)} 
-                ${isMe ? '<span style="font-size:10px;color:var(--gold);background:rgba(201,168,76,0.1);padding:2px 6px;border-radius:4px;margin-left:6px;font-weight:600">YOU</span>' : ""}
-                ${isDev ? '<span style="font-size:10px;color:var(--cyan);background:rgba(34,211,238,0.1);padding:2px 6px;border-radius:4px;margin-left:6px;font-weight:600">DEV</span>' : ""}
+                ${isMe ? '<span class="chip gold" style="font-size:9px;padding:1px 5px;margin-left:4px">YOU</span>' : ""}
+                ${isDev ? '<span class="chip blue" style="font-size:9px;padding:1px 5px;margin-left:4px">DEV</span>' : ""}
               </div>
-              <div style="font-size:13px;color:var(--text-muted)">${escHtml(p.role || "Attorney")}</div>
+              <div style="font-size:12px;color:var(--muted)">${escHtml(p.role || "Attorney")}</div>
             </div>
           </div>
-          <hr class="divider"/>
-          ${p.email ? `<div style="font-size:12px;color:var(--text-muted)"><i class="bi bi-envelope-fill" style="color:var(--gold);margin-right:6px"></i>${escHtml(p.email)}</div>` : ""}
-          ${p.contact ? `<div style="font-size:12px;color:var(--text-muted);margin-top:4px;margin-bottom:12px"><i class="bi bi-telephone-fill" style="color:var(--gold);margin-right:6px"></i>${escHtml(p.contact)}</div>` : ""}
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
-            <span style="font-size:13px;color:var(--text-dim)">Cases Accessible (${pc.length})</span>
-            ${ongoing > 0 ? badge(ongoing + " active", statusColor("On-going")) : ""}
+          <div style="border-top:1px solid var(--line);padding-top:12px">
+            ${p.email ? `<div style="font-size:12px;color:var(--muted);margin-bottom:4px"><i class="bi bi-envelope" style="color:var(--gold);margin-right:6px"></i>${escHtml(p.email)}</div>` : ""}
+            ${p.contact ? `<div style="font-size:12px;color:var(--muted);margin-bottom:12px"><i class="bi bi-telephone" style="color:var(--gold);margin-right:6px"></i>${escHtml(p.contact)}</div>` : ""}
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+              <span style="font-size:12px;color:var(--muted)">Cases Accessible (${pc.length})</span>
+              ${ongoing > 0 ? badge(ongoing + " active", statusColor("On-going")) : ""}
+            </div>
           </div>
         </div>
       `;
@@ -2272,7 +2249,7 @@ function renderProfiles() {
 window.renderProfiles = renderProfiles;
 
 // ═══════════════════════════════════════════════════════════════
-//  CASE SHARING SYSTEM (DEVELOPER ISOLATION RULE)
+//  CASE SHARING SYSTEM
 // ═══════════════════════════════════════════════════════════════
 window.openShareCaseModal = function() {
   if (!selCase) return;
@@ -2289,17 +2266,17 @@ window.openShareCaseModal = function() {
     : profiles.filter(p => p.ownerUid && p.ownerUid !== currentUid && p.role !== "developer");
 
   if (associates.length === 0) {
-    listEl.innerHTML = `<div style="text-align:center;color:var(--text-dim);font-size:13px;padding:12px">${isDeveloper ? 'No other developer test accounts available for sharing.' : 'No other associate attorneys are currently registered in the system.'}</div>`;
+    listEl.innerHTML = `<div style="text-align:center;color:var(--muted);font-size:13px;padding:12px">${isDeveloper ? 'No other developer test accounts available for sharing.' : 'No other associate attorneys are currently registered in the system.'}</div>`;
   } else {
     listEl.innerHTML = associates.map(p => {
       const isChecked = sharedUids.includes(p.ownerUid) ? "checked" : "";
       return `
-        <label style="display:flex;align-items:center;gap:12px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;cursor:pointer;margin:0;text-transform:none;letter-spacing:normal">
+        <label style="display:flex;align-items:center;gap:12px;background:var(--inset);border:1px solid var(--line2);border-radius:12px;padding:12px 14px;cursor:pointer;margin:0">
           <input type="checkbox" name="share-associate-checkbox" value="${p.ownerUid}" ${isChecked} style="accent-color:var(--gold);width:16px;height:16px;margin:0"/>
           ${avatarDiv(p.name, p.avatarColor, 28, p.photoUrl)}
           <div style="flex:1">
-            <div style="font-size:13px;font-weight:600;color:var(--text)">${p.name}</div>
-            <div style="font-size:11px;color:var(--text-muted)">${p.email}</div>
+            <div style="font-size:13px;font-weight:700;color:var(--head)">${p.name}</div>
+            <div style="font-size:11px;color:var(--muted)">${p.email}</div>
           </div>
         </label>
       `;
@@ -2313,7 +2290,9 @@ window.openShareCaseModal = function() {
 window.closeShareModal = function() {
   const modal = document.getElementById("share-modal");
   if (modal) modal.classList.add("hidden");
-};// ═══════════════════════════════════════════════════════════════
+};
+
+// ═══════════════════════════════════════════════════════════════
 //  PROFILE DETAIL
 // ═══════════════════════════════════════════════════════════════
 function renderProfileDetail() {
@@ -2328,19 +2307,19 @@ function renderProfileDetail() {
 
   if (isOwner) {
     driveChip = p.driveFolderId
-      ? `<a href="https://drive.google.com/drive/folders/${p.driveFolderId}" target="_blank" style="font-size:12px;color:var(--green);display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-weight:500;padding:4px 10px;background:rgba(34,197,94,0.08);border-radius:6px;border:1px solid rgba(34,197,94,0.2)" title="Open Drive Folder"><i class="bi bi-google"></i> Drive Folder <i class="bi bi-arrow-right"></i></a>`
+      ? `<a href="https://drive.google.com/drive/folders/${p.driveFolderId}" target="_blank" class="chip green" title="Open Drive Folder"><i class="bi bi-google"></i> Drive Folder <i class="bi bi-arrow-right"></i></a>`
       : (accessToken
-          ? `<button onclick="createProfileFolderManual()" style="background:transparent;border:1px solid var(--amber);color:var(--amber);font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-weight:500;padding:4px 10px;border-radius:6px;transition:all 0.2s"><i class="bi bi-folder-plus"></i> Create Drive Folder</button>`
-          : `<span style="font-size:12px;color:var(--text-dim);display:inline-flex;align-items:center;gap:6px"><i class="bi bi-cloud-slash"></i> Drive not connected</span>`);
+          ? `<button onclick="createProfileFolderManual()" class="chip gold" style="cursor:pointer"><i class="bi bi-folder-plus"></i> Create Drive Folder</button>`
+          : `<span class="chip plain"><i class="bi bi-cloud-slash"></i> Drive not connected</span>`);
 
     actionButtons = `
       <button class="btn btn-secondary btn-sm" onclick="navTo('myprofile')"><i class="bi bi-pencil-square"></i> Edit Profile</button>
-      <button class="btn btn-primary btn-sm" onclick="openAddCase()"><i class="bi bi-plus-circle"></i> Add Case</button>
+      <button class="btn gold btn-sm" onclick="openAddCase()"><i class="bi bi-plus-circle"></i> Add Case</button>
     `;
   } else {
-    driveChip = `<span style="font-size:12px;color:var(--text-dim)"><i class="bi bi-shield-lock"></i> Files Protected</span>`;
+    driveChip = `<span class="chip plain"><i class="bi bi-shield-lock"></i> Files Protected</span>`;
     actionButtons = `
-      <button class="btn btn-primary btn-sm" onclick="openAppointmentModal('${p.id}')"><i class="bi bi-calendar-plus"></i> Request Schedule</button>
+      <button class="btn gold btn-sm" onclick="openAppointmentModal('${p.id}')"><i class="bi bi-calendar-plus"></i> Request Schedule</button>
     `;
   }
 
@@ -2349,12 +2328,12 @@ function renderProfileDetail() {
     headerCard.innerHTML = `
       ${avatarDiv(p.name, p.avatarColor, 64, p.photoUrl)}
       <div style="flex:1">
-        <div style="font-size:24px;font-weight:700;color:var(--text)">${escHtml(p.name)}</div>
-        <div style="font-size:14px;color:var(--text-muted);margin-top:3px">${escHtml(p.role || "Attorney")}</div>
-        <div style="display:flex;gap:18px;margin-top:10px;flex-wrap:wrap;align-items:center">
-          ${p.email ? `<span style="font-size:12px;color:var(--text-muted)"><i class="bi bi-envelope-fill" style="color:var(--gold);margin-right:4px"></i>${escHtml(p.email)}</span>` : ""}
-          ${p.contact ? `<span style="font-size:12px;color:var(--text-muted)"><i class="bi bi-telephone-fill" style="color:var(--gold);margin-right:4px"></i>${escHtml(p.contact)}</span>` : ""}
-          <span style="font-size:12px;color:var(--text-dim)"><i class="bi bi-calendar-check" style="color:var(--gold);margin-right:4px"></i>Since ${p.createdAt || formatDate(new Date().toISOString())}</span>
+        <div style="font-family:var(--font-display);font-size:26px;font-weight:700;color:var(--head)">${escHtml(p.name)}</div>
+        <div style="font-size:13.5px;color:var(--muted);margin-top:2px">${escHtml(p.role || "Attorney")}</div>
+        <div style="display:flex;gap:16px;margin-top:10px;flex-wrap:wrap;align-items:center">
+          ${p.email ? `<span style="font-size:12px;color:var(--muted)"><i class="bi bi-envelope" style="color:var(--gold);margin-right:4px"></i>${escHtml(p.email)}</span>` : ""}
+          ${p.contact ? `<span style="font-size:12px;color:var(--muted)"><i class="bi bi-telephone" style="color:var(--gold);margin-right:4px"></i>${escHtml(p.contact)}</span>` : ""}
+          <span style="font-size:12px;color:var(--muted)"><i class="bi bi-calendar-check" style="color:var(--gold);margin-right:4px"></i>Since ${p.createdAt || formatDate(new Date().toISOString())}</span>
           ${driveChip}
         </div>
       </div>
@@ -2378,14 +2357,16 @@ function renderProfileDetail() {
       const docs = pc.reduce((a, c) => a + (c.documents?.length || 0), 0);
 
       statsEl.innerHTML = [
-        ["Accessible Cases", pc.length, "var(--violet)"],
-        ["Active", pc.filter(c => c.status === "On-going").length, "var(--amber)"],
+        ["Accessible Cases", pc.length, "var(--blue)"],
+        ["Active", pc.filter(c => c.status === "On-going").length, "var(--goldtxt)"],
         ["Resolved", pc.filter(c => c.status === "Completed").length, "var(--green)"],
-        ["Documents", docs, "var(--gold)"]
-      ].map(([l, n, c]) => `
-        <div class="stat-card" style="--accent:${c};padding:16px 18px">
-          <div class="stat-number" style="color:${c};font-size:32px">${n}</div>
-          <div class="stat-label">${l}</div>
+      ].map(([l, n, col]) => `
+        <div class="card stat-card-2">
+          <div class="num-2" style="color:${col}">${n}</div>
+          <div>
+            <b>${l}</b>
+            <span>${l === 'Resolved' ? 'Completed matters' : 'Attorney portfolio'}</span>
+          </div>
         </div>`).join("");
     }
 
@@ -2421,25 +2402,27 @@ function renderProfileCases() {
   if (!el) return;
 
   if (filtered.length === 0) {
-    el.innerHTML = `<div class="empty-state">${pc.length === 0
-      ? '<div class="empty-state-icon" style="color:var(--gold)"><i class="bi bi-bank"></i></div><div>No accessible cases yet</div>'
-      : '<div class="empty-state-icon" style="color:var(--gold)"><i class="bi bi-search"></i></div><div>No cases match your filters.</div>'
+    el.innerHTML = `<div class="empty-state" style="text-align:center;padding:40px">${pc.length === 0
+      ? '<div class="empty-state-icon" style="color:var(--gold);font-size:36px"><i class="bi bi-bank"></i></div><div style="color:var(--muted);margin-top:8px">No accessible cases yet</div>'
+      : '<div class="empty-state-icon" style="color:var(--gold);font-size:36px"><i class="bi bi-search"></i></div><div style="color:var(--muted);margin-top:8px">No cases match your filters.</div>'
     }</div>`;
     return;
   }
   el.innerHTML = filtered.map(c => `
-    <div class="case-row" onclick="openCase('${c.id}')">
-      <div style="flex:1;min-width:0">
-        <div style="font-weight:700;font-size:15px;color:var(--text);margin-bottom:4px">${escHtml(c.title)}</div>
-        <div style="font-size:12px;color:var(--text-muted);display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-          <span style="font-size:9.5px;font-weight:700;padding:2px 6px;border-radius:4px;background:rgba(201,165,92,0.12);color:var(--gold-light);border:1px solid var(--gold-border)">${escHtml(c.category || "Case")}</span>
-          <span>${c.type || "Litigation"} · ${c.venue || "No Venue"}</span>
+    <div class="case-row-2" onclick="openCase('${c.id}')">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;font-size:15px;color:var(--head);margin-bottom:4px">${escHtml(c.title)}</div>
+          <div style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+            <span class="chip gold" style="font-size:9.5px;padding:2px 6px">${escHtml(c.category || "Case")}</span>
+            <span>${c.type || "Litigation"} · ${c.venue || "No Venue"}</span>
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(c.parties || "")}</div>
         </div>
-        <div style="font-size:13px;color:var(--text-dim);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(c.parties || "")}</div>
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">
-        ${badge(c.status, statusColor(c.status))}
-        ${dueBadge(c.dueDate || c.docDueDate)}
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">
+          ${badge(c.status, statusColor(c.status))}
+          ${dueBadge(c.dueDate || c.docDueDate)}
+        </div>
       </div>
     </div>`).join("");
 }
@@ -2515,7 +2498,7 @@ function renderAllCases() {
   if (!el) return;
 
   if (filtered.length === 0) {
-    el.innerHTML = '<div class="empty-state"><div class="empty-state-icon" style="color:var(--gold)"><i class="bi bi-search"></i></div><div>No cases match your access permissions or filters.</div></div>';
+    el.innerHTML = '<div class="empty-state" style="text-align:center;padding:40px"><div class="empty-state-icon" style="color:var(--gold);font-size:36px"><i class="bi bi-search"></i></div><div style="color:var(--muted);margin-top:8px">No cases match your access permissions or filters.</div></div>';
     if (paginationBar) paginationBar.style.display = "none";
     return;
   }
@@ -2524,21 +2507,27 @@ function renderAllCases() {
 
   el.innerHTML = pagedCases.map(c => {
     const p = profiles.find(x => x.id === c.profileId);
-    return `<div class="case-row" onclick="openCase('${c.id}')">
-      ${p ? avatarDiv(p.name, p.avatarColor, 40, p.photoUrl) : ""}
-      <div style="flex:1;min-width:0">
-        <div style="font-weight:700;font-size:15px;color:var(--text);margin-bottom:4px">${escHtml(c.title)}</div>
-        <div style="font-size:12px;color:var(--text-muted);display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-          <span style="font-size:9.5px;font-weight:700;padding:2px 6px;border-radius:4px;background:rgba(201,165,92,0.12);color:var(--gold-light);border:1px solid var(--gold-border)">${escHtml(c.category || "Case")}</span>
-          <span>${p?.name || ""} · ${c.type || "Litigation"} · ${c.venue || "No Venue"}</span>
+    return `
+      <div class="case-row-2" onclick="openCase('${c.id}')">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+          <div style="display:flex;gap:12px;align-items:flex-start;flex:1;min-width:0">
+            ${p ? avatarDiv(p.name, p.avatarColor, 38, p.photoUrl) : ""}
+            <div style="flex:1;min-width:0">
+              <div style="font-weight:700;font-size:15px;color:var(--head);margin-bottom:4px">${escHtml(c.title)}</div>
+              <div style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+                <span class="chip gold" style="font-size:9.5px;padding:2px 6px">${escHtml(c.category || "Case")}</span>
+                <span>${p?.name || ""} · ${c.type || "Litigation"} · ${c.venue || "No Venue"}</span>
+              </div>
+              <div style="font-size:12px;color:var(--muted);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(c.parties || "")}</div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">
+            ${badge(c.status, statusColor(c.status))}
+            ${dueBadge(c.dueDate || c.docDueDate)}
+          </div>
         </div>
-        <div style="font-size:13px;color:var(--text-dim);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(c.parties || "")}</div>
       </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">
-        ${badge(c.status, statusColor(c.status))}
-        ${dueBadge(c.dueDate || c.docDueDate)}
-      </div>
-    </div>`;
+    `;
   }).join("");
 
   if (pageInfoEl) {
@@ -2549,8 +2538,8 @@ function renderAllCases() {
 
   if (buttonsWrap) {
     let btnsHtml = "";
-    for (let p = 1; p <= totalPages; p++) {
-      btnsHtml += `<button class="page-btn ${p === currentAllCasesPage ? 'active' : ''}" onclick="goToAllCasesPage(${p})">${p}</button>`;
+    for (let pNum = 1; pNum <= totalPages; pNum++) {
+      btnsHtml += `<button class="btn sm ${pNum === currentAllCasesPage ? 'gold' : 'btn-secondary'}" style="min-width:32px;padding:0" onclick="goToAllCasesPage(${pNum})">${pNum}</button>`;
     }
     buttonsWrap.innerHTML = btnsHtml;
   }
@@ -2585,7 +2574,7 @@ function renderCaseDetail() {
   if (canEdit) actionButtons += `<button class="btn btn-secondary btn-sm" onclick="openEditCase()"><i class="bi bi-pencil-square"></i> Edit Case</button>`;
   if (canShare) actionButtons += `<button class="btn btn-secondary btn-sm" onclick="openShareCaseModal()"><i class="bi bi-people"></i> Share</button>`;
   if (canDelete) actionButtons += `<button class="btn btn-danger btn-sm" onclick="confirmDeleteCase()"><i class="bi bi-trash3"></i> Delete</button>`;
-  if (isShared && !isOwner && !isGroupAdmin) actionButtons += `<span class="badge" style="background:rgba(52,211,153,0.15);color:var(--green);padding:6px 12px;font-size:11.5px"><i class="bi bi-shield-check"></i> Shared Associate (Editor)</span>`;
+  if (isShared && !isOwner && !isGroupAdmin) actionButtons += `<span class="chip green"><i class="bi bi-shield-check"></i> Shared Associate (Editor)</span>`;
 
   const wrapEl = document.getElementById("cd-action-buttons-wrap");
   if (wrapEl) wrapEl.innerHTML = actionButtons;
@@ -2598,7 +2587,7 @@ function renderCaseDetail() {
   const chip = document.getElementById("cd-profile-chip");
   if (chip) {
     if (p) {
-      chip.innerHTML = `${avatarDiv(p.name, p.avatarColor, 28, p.photoUrl)}<div><div style="font-size:14px;font-weight:600;color:var(--text)">${escHtml(p.name)}</div><div style="font-size:12px;color:var(--text-muted)">${escHtml(p.role || "Attorney")}</div></div><span style="font-size:12px;color:var(--text-dim);margin-left:8px"><i class="bi bi-arrow-right"></i> view profile</span>`;
+      chip.innerHTML = `${avatarDiv(p.name, p.avatarColor, 28, p.photoUrl)}<div><div style="font-size:14px;font-weight:700;color:var(--head)">${escHtml(p.name)}</div><div style="font-size:12px;color:var(--muted)">${escHtml(p.role || "Attorney")}</div></div><span style="font-size:12px;color:var(--goldtxt);margin-left:8px"><i class="bi bi-arrow-right"></i> view profile</span>`;
       chip.style.display = "inline-flex";
     } else {
       chip.style.display = "none";
@@ -2609,23 +2598,26 @@ function renderCaseDetail() {
   if (infoEl) {
     infoEl.innerHTML = `
       <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
-        ${badge(c.status, statusColor(c.status))} ${badge(c.category || "Case", "#c9a55c")} ${badge(c.type || "Litigation", "#6366f1")}
+        ${badge(c.status, statusColor(c.status))} 
+        <span class="chip gold">${escHtml(c.category || "Case")}</span> 
+        <span class="chip blue">${escHtml(c.type || "Litigation")}</span>
       </div>
-      <hr class="divider"/>
-      ${[
-        ["Parties Involved", c.parties || "None"],
-        ["Venue / Court", c.venue || "N/A"],
-        ["Date Case Filed", formatDate(c.filedDate)],
-        ["Case / Docket Number", c.caseNumber || "Not indicated"],
-        ["Date Added", c.createdAt || "N/A"]
-      ].map(([l, v]) => `
-        <div style="margin-bottom:16px">
-          <div style="font-size:11px;color:var(--text-dim);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;font-weight:600">${l}</div>
-          <div style="font-size:14px;color:var(--text)">${escHtml(v)}</div>
-        </div>`).join("")}
-      <div>
-        <div style="font-size:11px;color:var(--text-dim);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;font-weight:600">Case Narrative</div>
-        <div style="font-size:14px;color:var(--text-muted);line-height:1.8">${escHtml(c.narrative || "")}</div>
+      <div style="border-top:1px solid var(--line);padding-top:16px">
+        ${[
+          ["Parties Involved", c.parties || "None"],
+          ["Venue / Court", c.venue || "N/A"],
+          ["Date Case Filed", formatDate(c.filedDate)],
+          ["Case / Docket Number", c.caseNumber || "Not indicated"],
+          ["Date Added", c.createdAt || "N/A"]
+        ].map(([l, v]) => `
+          <div style="margin-bottom:14px">
+            <div style="font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;font-weight:700">${l}</div>
+            <div style="font-size:14px;color:var(--head)">${escHtml(v)}</div>
+          </div>`).join("")}
+        <div style="margin-top:16px">
+          <div style="font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;font-weight:700">Case Narrative</div>
+          <div style="font-size:13.5px;color:var(--text);line-height:1.7;background:var(--inset);padding:14px;border-radius:12px;border:1px solid var(--line2)">${escHtml(c.narrative || "")}</div>
+        </div>
       </div>`;
   }
 
@@ -2638,69 +2630,69 @@ function renderCaseDetail() {
     const sortedDeadlines = [...deadlinesList].sort((a, b) => new Date(a.date) - new Date(b.date));
 
     let hHtml = `
-      <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">
+      <div style="font-family:var(--font-display);font-size:18px;font-weight:700;color:var(--head);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">
         <span style="display:flex;align-items:center;gap:6px"><i class="bi bi-calendar-event" style="color:var(--gold)"></i> Schedule &amp; Timelines</span>
       </div>
     `;
 
     // 1. Separate Section: Court Hearings
-    hHtml += `<div style="font-size:11px;text-transform:uppercase;color:var(--text-dim);font-weight:700;margin-bottom:6px"><i class="bi bi-bank" style="color:var(--green)"></i> Court Hearings (${sortedHearings.length})</div>`;
+    hHtml += `<div style="font-size:11px;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:6px"><i class="bi bi-bank" style="color:var(--green)"></i> Court Hearings (${sortedHearings.length})</div>`;
     if (sortedHearings.length === 0) {
-      hHtml += `<div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">No court appearances on record.</div>`;
+      hHtml += `<div style="font-size:12px;color:var(--muted);margin-bottom:12px">No court appearances on record.</div>`;
     } else {
       hHtml += `<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px">`;
       sortedHearings.forEach(h => {
         const isPast = h.date < todayStr;
         const badgeMarkup = isPast
-          ? `<span class="badge" style="background:rgba(255,255,200,0.06);color:var(--text-dim);font-size:9.5px"><i class="bi bi-clock-history"></i> Past Hearing</span>`
-          : `<span class="badge" style="background:rgba(52,211,153,0.15);color:var(--green);font-size:9.5px"><i class="bi bi-calendar-event"></i> Upcoming Hearing</span>`;
+          ? `<span class="chip plain" style="font-size:9.5px"><i class="bi bi-clock-history"></i> Past Hearing</span>`
+          : `<span class="chip green" style="font-size:9.5px"><i class="bi bi-calendar-event"></i> Upcoming Hearing</span>`;
 
         hHtml += `
-          <div style="padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-left:4px solid ${isPast ? 'var(--text-dim)' : 'var(--green)'};border-radius:8px">
+          <div style="padding:10px 12px;background:var(--inset);border:1px solid var(--line2);border-left:4px solid ${isPast ? 'var(--line2)' : 'var(--green)'};border-radius:10px">
             <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;flex-wrap:wrap">
               ${badgeMarkup}
-              <span style="font-weight:700;font-size:12.5px;color:var(--text)">${formatDate(h.date)}</span>
-              ${h.time ? `<span style="font-size:11px;color:var(--text-muted)"><i class="bi bi-clock"></i> ${h.time}</span>` : ''}
+              <span style="font-weight:700;font-size:12.5px;color:var(--head)">${formatDate(h.date)}</span>
+              ${h.time ? `<span style="font-size:11px;color:var(--muted)"><i class="bi bi-clock"></i> ${h.time}</span>` : ''}
             </div>
-            <div style="font-size:12.5px;font-weight:600;color:var(--gold-light)">${escHtml(h.purpose)}</div>
-            ${h.notes ? `<div style="font-size:11.5px;color:var(--text-dim);margin-top:2px;font-style:italic">"${escHtml(h.notes)}"</div>` : ''}
+            <div style="font-size:12.5px;font-weight:600;color:var(--goldtxt)">${escHtml(h.purpose)}</div>
+            ${h.notes ? `<div style="font-size:11.5px;color:var(--muted);margin-top:2px;font-style:italic">"${escHtml(h.notes)}"</div>` : ''}
           </div>
         `;
       });
       hHtml += `</div>`;
     }
 
-    // 2. Separate Section: Document & Pleading Deadlines (No combined timeline)
+    // 2. Separate Section: Document & Pleading Deadlines
     const hasLegacyDue = Boolean(c.docDueDate);
     const totalDeadlinesCount = sortedDeadlines.length + (hasLegacyDue && !sortedDeadlines.some(d => d.date === c.docDueDate) ? 1 : 0);
 
-    hHtml += `<div style="font-size:11px;text-transform:uppercase;color:var(--text-dim);font-weight:700;margin-bottom:6px"><i class="bi bi-file-earmark-text-fill" style="color:var(--gold)"></i> Document &amp; Pleading Deadlines (${totalDeadlinesCount})</div>`;
+    hHtml += `<div style="font-size:11px;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:6px"><i class="bi bi-file-earmark-text-fill" style="color:var(--gold)"></i> Document &amp; Pleading Deadlines (${totalDeadlinesCount})</div>`;
     
     if (totalDeadlinesCount === 0) {
-      hHtml += `<div style="font-size:12px;color:var(--text-muted)">No filing deadlines logged.</div>`;
+      hHtml += `<div style="font-size:12px;color:var(--muted)">No filing deadlines logged.</div>`;
     } else {
       hHtml += `<div style="display:flex;flex-direction:column;gap:8px">`;
       if (c.docDueDate && !sortedDeadlines.some(d => d.date === c.docDueDate)) {
         hHtml += `
-          <div style="padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-left:4px solid var(--gold);border-radius:8px">
+          <div style="padding:10px 12px;background:var(--inset);border:1px solid var(--line2);border-left:4px solid var(--gold);border-radius:10px">
             <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">
-              <span class="badge" style="background:rgba(201,165,92,0.15);color:var(--gold-light);font-size:9.5px"><i class="bi bi-file-earmark-text-fill"></i> Pleading Due</span>
-              <span style="font-weight:700;font-size:12.5px;color:var(--text)">${formatDate(c.docDueDate)}</span>
+              <span class="chip gold" style="font-size:9.5px"><i class="bi bi-file-earmark-text-fill"></i> Pleading Due</span>
+              <span style="font-weight:700;font-size:12.5px;color:var(--head)">${formatDate(c.docDueDate)}</span>
             </div>
-            <div style="font-size:12.5px;font-weight:600;color:var(--gold-light)">${escHtml(c.docType || 'Formal Pleading')}</div>
+            <div style="font-size:12.5px;font-weight:600;color:var(--goldtxt)">${escHtml(c.docType || 'Formal Pleading')}</div>
           </div>
         `;
       }
       sortedDeadlines.forEach(d => {
         hHtml += `
-          <div style="padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-left:4px solid var(--gold);border-radius:8px">
+          <div style="padding:10px 12px;background:var(--inset);border:1px solid var(--line2);border-left:4px solid var(--gold);border-radius:10px">
             <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">
-              <span class="badge" style="background:rgba(201,165,92,0.15);color:var(--gold-light);font-size:9.5px"><i class="bi bi-file-earmark-text-fill"></i> Filing Deadline</span>
-              <span style="font-weight:700;font-size:12.5px;color:var(--text)">${formatDate(d.date)}</span>
-              ${d.flow ? `<span class="badge" style="background:rgba(129,140,248,0.12);color:var(--violet);font-size:9px">${escHtml(d.flow)}</span>` : ''}
+              <span class="chip gold" style="font-size:9.5px"><i class="bi bi-file-earmark-text-fill"></i> Filing Deadline</span>
+              <span style="font-weight:700;font-size:12.5px;color:var(--head)">${formatDate(d.date)}</span>
+              ${d.flow ? `<span class="chip blue" style="font-size:9px">${escHtml(d.flow)}</span>` : ''}
             </div>
-            <div style="font-size:12.5px;font-weight:600;color:var(--gold-light)">${escHtml(d.subtype || d.title || 'Pleading')}</div>
-            ${d.notes ? `<div style="font-size:11.5px;color:var(--text-dim);margin-top:2px;font-style:italic">"${escHtml(d.notes)}"</div>` : ''}
+            <div style="font-size:12.5px;font-weight:600;color:var(--goldtxt)">${escHtml(d.subtype || d.title || 'Pleading')}</div>
+            ${d.notes ? `<div style="font-size:11.5px;color:var(--muted);margin-top:2px;font-style:italic">"${escHtml(d.notes)}"</div>` : ''}
           </div>
         `;
       });
@@ -2712,24 +2704,24 @@ function renderCaseDetail() {
 
   const docs = c.documents || [];
   let docsHtml = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:12px">
-    <div style="font-size:15px;font-weight:700;color:var(--text)">Case Files</div>
+    <div style="font-family:var(--font-display);font-size:18px;font-weight:700;color:var(--head)">Case Files</div>
     ${canEdit ? `
       <div style="display:inline-flex;align-items:center;gap:10px">
-        <div style="display:inline-flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:3px 10px">
+        <div style="display:inline-flex;align-items:center;gap:8px;background:var(--inset);border:1px solid var(--line2);border-radius:8px;padding:3px 10px">
           <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text);cursor:pointer;margin:0">
             <input type="radio" name="cd-file-type" value="Inbound" checked style="accent-color:var(--gold);margin:0"/> <i class="bi bi-box-arrow-in-down" style="color:var(--green)"></i> In
           </label>
           <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text);cursor:pointer;margin:0">
-            <input type="radio" name="cd-file-type" value="Outbound" style="accent-color:var(--gold);margin:0"/> <i class="bi bi-box-arrow-up" style="color:var(--violet)"></i> Out
+            <input type="radio" name="cd-file-type" value="Outbound" style="accent-color:var(--gold);margin:0"/> <i class="bi bi-box-arrow-up" style="color:var(--blue-tx)"></i> Out
           </label>
         </div>
-        <button class="btn btn-primary btn-sm" onclick="addDocToCase()"><i class="bi bi-cloud-arrow-up"></i> Upload Document</button>
-      </div>` : `<span style="font-size:11px;color:var(--text-dim)"><i class="bi bi-shield-lock"></i> Protected File Repository</span>`
+        <button class="btn gold btn-sm" onclick="addDocToCase()"><i class="bi bi-cloud-arrow-up"></i> Upload</button>
+      </div>` : `<span class="chip plain"><i class="bi bi-shield-lock"></i> Protected Repository</span>`
     }
   </div>`;
 
   if (docs.length === 0) {
-    docsHtml += `<div class="upload-area" ${canEdit ? 'onclick="addDocToCase()"' : ''}><div style="font-size:26px;margin-bottom:4px;color:var(--gold)"><i class="bi bi-paperclip"></i></div><div>${canEdit ? 'Click to attach a document' : 'No document records uploaded'}</div></div>`;
+    docsHtml += `<div class="upload-area" ${canEdit ? 'onclick="addDocToCase()"' : ''} style="text-align:center;padding:24px;border:1px dashed var(--line2);border-radius:12px;background:var(--inset)"><div style="font-size:24px;margin-bottom:4px;color:var(--gold)"><i class="bi bi-paperclip"></i></div><div style="font-size:12px;color:var(--muted)">${canEdit ? 'Click to attach a document' : 'No document records uploaded'}</div></div>`;
   } else {
     const inboundDocs = docs.filter(d => d.fileType === "Inbound");
     const outboundDocs = docs.filter(d => d.fileType === "Outbound");
@@ -2738,40 +2730,38 @@ function renderCaseDetail() {
     const renderDocRow = (doc) => {
       const realIdx = docs.findIndex(x => x === doc || (x.driveFileId && x.driveFileId === doc.driveFileId && x.name === doc.name));
       const fileIcon = doc.name.toLowerCase().endsWith(".pdf") 
-        ? `<i class="bi bi-file-earmark-pdf-fill" style="color:var(--red);margin-right:6px"></i>`
+        ? `<i class="bi bi-file-earmark-pdf-fill" style="color:var(--red-tx);margin-right:6px"></i>`
         : `<i class="bi bi-file-earmark-text-fill" style="color:var(--gold);margin-right:6px"></i>`;
 
       return `
-        <div class="doc-item" style="margin-bottom:8px">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;width:100%">
-            <div>
-              <div style="font-size:13px;color:var(--text);font-weight:600">
-                <span onclick='openFilePreview(${JSON.stringify(doc).replace(/'/g, "&#39;")})' style="cursor:pointer;color:var(--gold);text-decoration:underline;text-underline-offset:3px">
-                  ${fileIcon}${escHtml(doc.name)}
-                </span>
-              </div>
-              <div style="font-size:12px;color:var(--text-muted)">
-                ${doc.size} · ${doc.date}${doc.driveFileId ? ` · <span style="color:var(--green)"><i class="bi bi-check-circle-fill"></i> Drive</span>` : ""}
-              </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;background:var(--inset);border:1px solid var(--line2);border-radius:10px;padding:10px 14px;margin-bottom:8px">
+          <div>
+            <div style="font-size:13px;color:var(--head);font-weight:600">
+              <span onclick='openFilePreview(${JSON.stringify(doc).replace(/'/g, "&#39;")})' style="cursor:pointer;color:var(--goldtxt);text-decoration:underline">
+                ${fileIcon}${escHtml(doc.name)}
+              </span>
             </div>
-            ${canEdit ? `<button style="background:transparent;border:none;color:var(--red);font-size:15px;cursor:pointer;padding:2px 10px;flex-shrink:0" onclick="removeDocFromCase(${realIdx})" title="Delete File"><i class="bi bi-trash3-fill"></i></button>` : ""}
+            <div style="font-size:11.5px;color:var(--muted);margin-top:2px">
+              ${doc.size} · ${doc.date}${doc.driveFileId ? ` · <span style="color:var(--green)"><i class="bi bi-check-circle-fill"></i> Drive</span>` : ""}
+            </div>
           </div>
+          ${canEdit ? `<button style="background:transparent;border:none;color:var(--red-tx);font-size:14px;cursor:pointer;padding:4px" onclick="removeDocFromCase(${realIdx})" title="Delete File"><i class="bi bi-trash3-fill"></i></button>` : ""}
         </div>
       `;
     };
 
     if (inboundDocs.length > 0) {
-      docsHtml += `<div style="font-size:11px;font-weight:700;color:var(--text-dim);margin:14px 0 6px;text-transform:uppercase;letter-spacing:1px"><i class="bi bi-box-arrow-in-down" style="color:var(--green)"></i> Inbound Documents</div>`;
+      docsHtml += `<div style="font-size:11px;font-weight:700;color:var(--muted);margin:14px 0 6px;text-transform:uppercase"><i class="bi bi-box-arrow-in-down" style="color:var(--green)"></i> Inbound Documents</div>`;
       inboundDocs.forEach(d => { docsHtml += renderDocRow(d); });
     }
 
     if (outboundDocs.length > 0) {
-      docsHtml += `<div style="font-size:11px;font-weight:700;color:var(--text-dim);margin:14px 0 6px;text-transform:uppercase;letter-spacing:1px"><i class="bi bi-box-arrow-up" style="color:var(--violet)"></i> Outbound Documents</div>`;
+      docsHtml += `<div style="font-size:11px;font-weight:700;color:var(--muted);margin:14px 0 6px;text-transform:uppercase"><i class="bi bi-box-arrow-up" style="color:var(--blue-tx)"></i> Outbound Documents</div>`;
       outboundDocs.forEach(d => { docsHtml += renderDocRow(d); });
     }
 
     if (otherDocs.length > 0) {
-      docsHtml += `<div style="font-size:11px;font-weight:700;color:var(--text-dim);margin:14px 0 6px;text-transform:uppercase;letter-spacing:1px"><i class="bi bi-files" style="color:var(--gold)"></i> Other Files</div>`;
+      docsHtml += `<div style="font-size:11px;font-weight:700;color:var(--muted);margin:14px 0 6px;text-transform:uppercase"><i class="bi bi-files" style="color:var(--gold)"></i> Other Files</div>`;
       otherDocs.forEach(d => { docsHtml += renderDocRow(d); });
     }
   }
@@ -2783,14 +2773,14 @@ function renderCaseDetail() {
   if (statusPanelEl) {
     if (canEdit) {
       statusPanelEl.innerHTML = `
-        <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:14px">Update Status</div>
+        <div style="font-family:var(--font-display);font-size:18px;font-weight:700;color:var(--head);margin-bottom:14px">Update Status</div>
         ${STATUS_OPTIONS.map(st => `
-          <button onclick="confirmUpdateCaseStatus('${st}')" style="display:block;width:100%;margin-bottom:8px;padding:10px 16px;border-radius:10px;border:1px solid ${c.status === st ? statusColor(st) : "var(--border)"};background:${c.status === st ? statusColor(st) + "18" : "transparent"};color:${c.status === st ? statusColor(st) : "var(--text)"};text-align:left;cursor:pointer;font-size:13px;font-family:var(--font-body);font-weight:${c.status === st ? 700 : 500};transition:all 0.2s">
+          <button onclick="confirmUpdateCaseStatus('${st}')" style="display:block;width:100%;margin-bottom:8px;padding:10px 16px;border-radius:10px;border:1px solid ${c.status === st ? statusColor(st) : "var(--line2)"};background:${c.status === st ? statusColor(st) + "18" : "transparent"};color:${c.status === st ? statusColor(st) : "var(--head)"};text-align:left;cursor:pointer;font-size:13px;font-weight:${c.status === st ? 700 : 500};transition:all 0.15s">
             ${c.status === st ? '<i class="bi bi-check-lg" style="margin-right:6px"></i>' : ""}${st}
           </button>`).join("")}`;
     } else {
       statusPanelEl.innerHTML = `
-        <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:10px">Current Status</div>
+        <div style="font-family:var(--font-display);font-size:18px;font-weight:700;color:var(--head);margin-bottom:10px">Current Status</div>
         ${badge(c.status, statusColor(c.status))}
       `;
     }
@@ -2806,7 +2796,7 @@ window.confirmUpdateCaseStatus = function(st) {
     title: "Update Case Status?",
     body: `Are you sure you want to update the status of <strong>"${escHtml(selCase.title)}"</strong> to <strong style="color:${statusColor(st)}">"${st}"</strong>?`,
     confirmText: "Update Status",
-    confirmStyle: "btn-primary",
+    confirmStyle: "btn gold",
     onConfirm: () => updateCaseStatus(st)
   });
 };
@@ -2869,7 +2859,6 @@ function renderQuickAccess() {
   const myProf = u ? profiles.find(p => p.ownerUid === u.uid || (p.email && p.email.toLowerCase() === (u.email || "").toLowerCase())) : null;
   const isDeveloper = myProf && myProf.role === "developer";
 
-  // Developers only see developers; attorneys only see attorneys
   const visible = isDeveloper
     ? profiles.filter(p => p.role === "developer")
     : profiles.filter(p => p.role !== "developer");
@@ -2877,12 +2866,9 @@ function renderQuickAccess() {
   if (visible.length === 0) { qa.style.display = "none"; return; }
   qa.style.display = "block";
   ql.innerHTML = visible.slice(0, 7).map(p => `
-    <button class="nav-btn ${selProfile?.id === p.id ? 'active' : ''}" style="gap:10px;padding:10px 24px" onclick="openProfile('${p.id}')">
-      ${p.photoUrl
-        ? `<img src="${p.photoUrl}" alt="${initials(p.name)}" class="quick-avatar" style="object-fit:cover;border:2px solid ${p.avatarColor || '#c9a84c'}">`
-        : `<span class="quick-avatar" style="background:${p.avatarColor}22;border:2px solid ${p.avatarColor};color:${p.avatarColor}">${initials(p.name)}</span>`
-      }
-      <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px">${escHtml(p.name)}</span>
+    <button class="nav-btn ${selProfile?.id === p.id ? 'active' : ''}" onclick="openProfile('${p.id}')">
+      ${avatarDiv(p.name, p.avatarColor, 24, p.photoUrl)}
+      <span class="nav-label" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(p.name)}</span>
     </button>`).join("");
 }
 
@@ -2926,10 +2912,10 @@ function renderSidebarUser() {
   }
 
   chip.innerHTML = `
-    ${avatarDiv(myProf.name, myProf.avatarColor, 28, myProf.photoUrl)}
+    ${avatarDiv(myProf.name, myProf.avatarColor, 32, myProf.photoUrl)}
     <div style="flex:1;min-width:0;text-align:left">
-      <div class="sidebar-user-name" style="font-size:12px;font-weight:700;color:#ffffff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(myProf.name)}</div>
-      <div class="sidebar-user-role" style="font-size:10px;color:var(--gold);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(myProf.role || "Attorney")}</div>
+      <div style="font-size:12.5px;font-weight:700;color:var(--head);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(myProf.name)}</div>
+      <div style="font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(myProf.role || "Attorney")}</div>
     </div>
   `;
   chip.style.display = "flex";
@@ -2962,14 +2948,14 @@ function sortCasesByDue(arr, dir) {
 }
 
 function dueBadge(dueDate) {
-  if (!dueDate) return '<span style="font-size:11px;color:var(--text-dim)">No due date</span>';
+  if (!dueDate) return '<span style="font-size:11px;color:var(--muted)">No due date</span>';
   const days = Math.ceil((new Date(dueDate) - new Date()) / (1000 * 60 * 60 * 24));
   const formatted = formatDate(dueDate);
-  if (days < 0)   return `<span style="font-size:11px;font-weight:700;color:var(--red)"><i class="bi bi-exclamation-circle-fill" style="margin-right:3px"></i>Overdue (${formatted})</span>`;
-  if (days === 0) return `<span style="font-size:11px;font-weight:700;color:var(--red)"><i class="bi bi-exclamation-circle-fill" style="margin-right:3px"></i>Due today</span>`;
-  if (days <= 7)  return `<span style="font-size:11px;font-weight:700;color:var(--amber)">${days}d left (${formatted})</span>`;
-  if (days <= 30) return `<span style="font-size:11px;font-weight:600;color:var(--gold)">${days}d (${formatted})</span>`;
-  return `<span style="font-size:11px;color:var(--text-muted)">Due ${formatted}</span>`;
+  if (days < 0)   return `<span class="chip red" style="font-size:10px"><i class="bi bi-exclamation-circle-fill"></i> Overdue (${formatted})</span>`;
+  if (days === 0) return `<span class="chip red" style="font-size:10px"><i class="bi bi-exclamation-circle-fill"></i> Due today</span>`;
+  if (days <= 7)  return `<span class="chip gold" style="font-size:10px"><i class="bi bi-clock"></i> ${days}d left</span>`;
+  if (days <= 30) return `<span class="chip blue" style="font-size:10px">${days}d left</span>`;
+  return `<span style="font-size:11px;color:var(--muted)">Due ${formatted}</span>`;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -3039,7 +3025,7 @@ window.refreshFilterTypes = refreshFilterTypes;
 window.onFilterCategoryChange = onFilterCategoryChange;
 
 // ═══════════════════════════════════════════════════════════════
-//  PERSONAL SETTINGS (ZERO ACCOUNT DELETION)
+//  PERSONAL SETTINGS
 // ═══════════════════════════════════════════════════════════════
 let settingsPhotoDataUrl = null;
 
@@ -3089,15 +3075,15 @@ function renderMyProfile() {
 
   if (statusEl && btn && btnText) {
     if (hasValidToken()) {
-      statusEl.className = "drive-status-chip connected";
-      statusEl.innerHTML = `<i class="bi bi-check-circle-fill" style="color:var(--green)"></i> Connected`;
+      statusEl.className = "chip green";
+      statusEl.innerHTML = `<i class="bi bi-check-circle-fill"></i> Connected`;
       btnText.textContent = "✓ Connected";
       btn.classList.add("connected");
       btn.disabled = true;
       if (disconnectBtn) disconnectBtn.classList.remove("hidden");
     } else {
-      statusEl.className = "drive-status-chip disconnected";
-      statusEl.innerHTML = `<i class="bi bi-circle-fill" style="color:var(--amber)"></i> Not Connected`;
+      statusEl.className = "chip plain";
+      statusEl.innerHTML = `<i class="bi bi-circle-fill" style="font-size:7px;color:var(--amber)"></i> Not Connected`;
       btnText.textContent = "Connect Google Drive";
       btn.classList.remove("connected");
       btn.disabled = false;
@@ -3111,9 +3097,7 @@ function renderMyProfile() {
 
   if (tfaBadge && tfaBtn) {
     if (myProf.twoFactorEnabled) {
-      tfaBadge.className = "badge";
-      tfaBadge.style.background = "rgba(52,211,153,0.15)";
-      tfaBadge.style.color = "var(--green)";
+      tfaBadge.className = "chip green";
       tfaBadge.innerHTML = `<i class="bi bi-shield-check"></i> 2FA Active`;
 
       tfaBtn.className = "btn btn-danger btn-sm";
@@ -3122,12 +3106,10 @@ function renderMyProfile() {
 
       if (tfaBackupWrap) tfaBackupWrap.style.display = "block";
     } else {
-      tfaBadge.className = "badge";
-      tfaBadge.style.background = "rgba(251,191,36,0.15)";
-      tfaBadge.style.color = "var(--amber)";
-      tfaBadge.innerHTML = `<i class="bi bi-circle-fill" style="font-size:8px"></i> Not Configured`;
+      tfaBadge.className = "chip plain";
+      tfaBadge.innerHTML = `<i class="bi bi-circle-fill" style="font-size:7px;color:var(--amber)"></i> Not Configured`;
 
-      tfaBtn.className = "btn btn-primary btn-sm";
+      tfaBtn.className = "btn gold btn-sm";
       tfaBtn.innerHTML = `<i class="bi bi-qr-code-scan"></i> Configure Authenticator`;
       tfaBtn.onclick = openTwoFactorSetupModal;
 
@@ -3470,25 +3452,25 @@ async function fetchAndRenderGoogleCalendarEvents() {
   const card = document.getElementById("dash-calendar-card");
   if (!card) return;
 
-  let html = `<div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:18px;display:flex;align-items:center;gap:8px;justify-content:space-between">
-    <div style="display:flex;align-items:center;gap:8px">
-      <i class="bi bi-calendar3" style="color:var(--gold);font-size:18px"></i> Google Calendar Agenda
-    </div>
-    <button onclick="fetchAndRenderGoogleCalendarEvents()" class="btn btn-ghost" style="font-size:11px;padding:4px 8px" title="Refresh Agenda"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+  let html = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+    <h2 style="display:flex;align-items:center;gap:8px">
+      <i class="bi bi-calendar3" style="color:var(--gold)"></i> Google Calendar Agenda
+    </h2>
+    <button onclick="fetchAndRenderGoogleCalendarEvents()" class="btn btn-secondary btn-sm" title="Refresh Agenda"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
   </div>`;
 
   if (!hasValidToken()) {
-    html += `<div style="text-align:center;padding:24px 12px;color:var(--text-muted);border:1px dashed var(--border);border-radius:10px">
-      <div style="font-size:24px;margin-bottom:8px;color:var(--gold)"><i class="bi bi-cloud-slash"></i></div>
-      <div style="font-size:12px;font-weight:600">Google Calendar Not Synced</div>
-      <div style="font-size:11px;margin-top:4px">Authorize Google Calendar under <a href="#" onclick="navTo('myprofile'); return false;" style="color:var(--gold);text-decoration:underline">My Settings</a> to sync case deadlines and view your agenda live.</div>
+    html += `<div class="empty-state" style="text-align:center;padding:32px 14px;background:var(--inset);border:1px solid var(--line2);border-radius:12px">
+      <div style="font-size:26px;margin-bottom:8px;color:var(--gold)"><i class="bi bi-cloud-slash"></i></div>
+      <div style="font-weight:700;color:var(--head);font-size:13.5px">Google Calendar Not Synced</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:6px;line-height:1.5">Authorize Google Calendar under <a href="#" onclick="navTo('myprofile'); return false;" style="color:var(--goldtxt);text-decoration:underline;font-weight:700">My Settings</a> to sync case deadlines and view your agenda live.</div>
     </div>`;
     card.innerHTML = html;
     return;
   }
 
   try {
-    card.innerHTML = html + `<div style="text-align:center;padding:20px"><span class="spinner" style="border-top-color:var(--gold)"></span></div>`;
+    card.innerHTML = html + `<div style="text-align:center;padding:30px"><span class="spinner" style="border-top-color:var(--gold)"></span></div>`;
     
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -3510,11 +3492,11 @@ async function fetchAndRenderGoogleCalendarEvents() {
     window._fetchedCalendarEvents = events;
 
     if (events.length === 0) {
-      html += `<div style="text-align:center;padding:24px 12px;color:var(--text-muted);border:1px dashed var(--border);border-radius:10px;font-size:12px">
+      html += `<div style="text-align:center;padding:28px 12px;color:var(--muted);border:1px dashed var(--line2);border-radius:12px;font-size:12.5px">
         No upcoming events found on your Google Calendar.
       </div>`;
     } else {
-      html += `<div style="display:flex;flex-direction:column;gap:10px">`;
+      html += `<div style="display:flex;flex-direction:column;gap:8px">`;
       events.forEach((ev, i) => {
         const start = ev.start.date || ev.start.dateTime;
         const parsedStart = parseGoogleDateTime(start);
@@ -3523,20 +3505,20 @@ async function fetchAndRenderGoogleCalendarEvents() {
         const timeStr   = parsedStart.timeStr;
         const eventDate = parsedStart.dateObj;
         
-        const locationMarkup = ev.location ? `<div style="font-size:11.5px;color:var(--text-muted);margin-top:2px;display:flex;align-items:center;gap:4px"><i class="bi bi-geo-alt-fill" style="color:var(--gold)"></i> ${escHtml(ev.location)}</div>` : "";
-        const descriptionMarkup = ev.description ? `<div style="font-size:11.5px;color:var(--text-muted);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-style:italic">"${escHtml(ev.description.slice(0, 50))}${ev.description.length > 50 ? '...' : ''}"</div>` : "";
+        const locationMarkup = ev.location ? `<div style="font-size:11.5px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:4px"><i class="bi bi-geo-alt-fill" style="color:var(--gold)"></i> ${escHtml(ev.location)}</div>` : "";
+        const descriptionMarkup = ev.description ? `<div style="font-size:11.5px;color:var(--muted);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-style:italic">"${escHtml(ev.description.slice(0, 50))}${ev.description.length > 50 ? '...' : ''}"</div>` : "";
 
         const weekdayStr = eventDate.toLocaleDateString("en-US", { weekday: "short" });
 
         html += `
-          <div onclick="openCalendarEventModal(${i})" style="display:flex;gap:12px;align-items:center;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:all 0.2s" onmouseenter="this.style.borderColor='var(--gold-border)';this.style.background='var(--surface3)'" onmouseleave="this.style.borderColor='var(--border)';this.style.background='var(--surface2)'">
-            <div style="text-align:center;background:rgba(201,168,76,0.1);border:1px solid var(--gold-border);border-radius:8px;padding:6px;min-width:48px">
-              <div style="font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase">${weekdayStr}</div>
-              <div style="font-size:14px;font-weight:700;color:var(--text);margin-top:1px">${eventDate.getDate()}</div>
+          <div onclick="openCalendarEventModal(${i})" style="display:flex;gap:12px;align-items:center;padding:11px 13px;background:var(--inset);border:1px solid var(--line2);border-radius:12px;cursor:pointer;transition:all 0.15s" onmouseenter="this.style.borderColor='var(--gold-bd)';this.style.background='var(--navhov)'" onmouseleave="this.style.borderColor='var(--line2)';this.style.background='var(--inset)'">
+            <div style="text-align:center;background:var(--gold-bg);border:1px solid var(--gold-bd);border-radius:8px;padding:6px;min-width:48px">
+              <div style="font-size:10px;font-weight:800;color:var(--goldtxt);text-transform:uppercase">${weekdayStr}</div>
+              <div style="font-size:15px;font-weight:700;color:var(--head);margin-top:1px">${eventDate.getDate()}</div>
             </div>
             <div style="flex:1;min-width:0">
-              <div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${escHtml(ev.summary || 'No Title')}">${escHtml(ev.summary || 'No Title')}</div>
-              <div style="font-size:11px;color:var(--text-muted);margin-top:2px"><i class="bi bi-calendar-event" style="color:var(--gold);margin-right:2px"></i> ${dateStr} · <i class="bi bi-clock" style="color:var(--gold);margin-right:2px"></i> ${timeStr}</div>
+              <div style="font-size:13.5px;font-weight:700;color:var(--head);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${escHtml(ev.summary || 'No Title')}">${escHtml(ev.summary || 'No Title')}</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:2px"><i class="bi bi-calendar-event" style="color:var(--gold);margin-right:2px"></i> ${dateStr} · <i class="bi bi-clock" style="color:var(--gold);margin-right:2px"></i> ${timeStr}</div>
               ${locationMarkup}
               ${descriptionMarkup}
             </div>
@@ -3567,12 +3549,19 @@ window.filterNotifications = function(cat) {
   renderNotificationsView();
 };
 
-window.toggleNotifDropdown = function() {
+window.toggleNotifDropdown = function(e) {
+  if (e && e.stopPropagation) e.stopPropagation();
   const dropdown = document.getElementById("notif-dropdown");
   if (!dropdown) return;
   
   const willOpen = dropdown.classList.contains("hidden");
   dropdown.classList.toggle("hidden");
+
+  const btn = document.getElementById("notif-toggle-btn");
+  if (btn) {
+    btn.setAttribute("aria-expanded", willOpen ? "true" : "false");
+    btn.classList.toggle("active", willOpen);
+  }
 
   if (willOpen) {
     const chatPanel = document.getElementById("chat-panel");
@@ -3584,10 +3573,16 @@ window.toggleNotifDropdown = function() {
 };
 
 document.addEventListener("click", (e) => {
-  const container = document.getElementById("top-hdr-actions");
+  const btn = document.getElementById("notif-toggle-btn");
   const dropdown = document.getElementById("notif-dropdown");
-  if (container && dropdown && !container.contains(e.target)) {
-    dropdown.classList.add("hidden");
+  if (dropdown && !dropdown.classList.contains("hidden")) {
+    if (!dropdown.contains(e.target) && (!btn || !btn.contains(e.target))) {
+      dropdown.classList.add("hidden");
+      if (btn) {
+        btn.setAttribute("aria-expanded", "false");
+        btn.classList.remove("active");
+      }
+    }
   }
 });
 
@@ -3646,16 +3641,16 @@ function renderNotificationsView() {
   }
 
   let tabsHtml = `
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:6px 2px 10px 2px;margin-bottom:8px;border-bottom:1px solid var(--border)">
-      <button onclick="event.stopPropagation(); filterNotifications('all')" style="white-space:nowrap;padding:7px 10px;border-radius:8px;font-size:12px;font-weight:600;border:1px solid ${currentNotifFilter==='all'?'var(--gold)':'var(--border)'};cursor:pointer;background:${currentNotifFilter==='all'?'rgba(201,165,92,0.15)':'var(--surface2)'};color:${currentNotifFilter==='all'?'var(--gold-light)':'var(--text-muted)'};text-align:center">All (${totalAll})</button>
-      <button onclick="event.stopPropagation(); filterNotifications('deadline')" style="white-space:nowrap;padding:7px 10px;border-radius:8px;font-size:12px;font-weight:600;border:1px solid ${currentNotifFilter==='deadline'?'var(--gold)':'var(--border)'};cursor:pointer;background:${currentNotifFilter==='deadline'?'rgba(201,165,92,0.15)':'var(--surface2)'};color:${currentNotifFilter==='deadline'?'var(--gold-light)':'var(--text-muted)'};text-align:center">Deadlines (${totalDeadlines})</button>
-      <button onclick="event.stopPropagation(); filterNotifications('hearing')" style="white-space:nowrap;padding:7px 10px;border-radius:8px;font-size:12px;font-weight:600;border:1px solid ${currentNotifFilter==='hearing'?'var(--gold)':'var(--border)'};cursor:pointer;background:${currentNotifFilter==='hearing'?'rgba(201,165,92,0.15)':'var(--surface2)'};color:${currentNotifFilter==='hearing'?'var(--gold-light)':'var(--text-muted)'};text-align:center">Hearings (${totalHearings})</button>
-      <button onclick="event.stopPropagation(); filterNotifications('appt')" style="white-space:nowrap;padding:7px 10px;border-radius:8px;font-size:12px;font-weight:600;border:1px solid ${currentNotifFilter==='appt'?'var(--gold)':'var(--border)'};cursor:pointer;background:${currentNotifFilter==='appt'?'rgba(201,165,92,0.15)':'var(--surface2)'};color:${currentNotifFilter==='appt'?'var(--gold-light)':'var(--text-muted)'};text-align:center">Proposals (${totalAppts})</button>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:4px 2px 10px 2px;margin-bottom:8px;border-bottom:1px solid var(--line)">
+      <button onclick="event.stopPropagation(); filterNotifications('all')" class="btn sm ${currentNotifFilter==='all'?'gold':'btn-secondary'}" style="padding:4px 8px">All (${totalAll})</button>
+      <button onclick="event.stopPropagation(); filterNotifications('deadline')" class="btn sm ${currentNotifFilter==='deadline'?'gold':'btn-secondary'}" style="padding:4px 8px">Deadlines (${totalDeadlines})</button>
+      <button onclick="event.stopPropagation(); filterNotifications('hearing')" class="btn sm ${currentNotifFilter==='hearing'?'gold':'btn-secondary'}" style="padding:4px 8px">Hearings (${totalHearings})</button>
+      <button onclick="event.stopPropagation(); filterNotifications('appt')" class="btn sm ${currentNotifFilter==='appt'?'gold':'btn-secondary'}" style="padding:4px 8px">Proposals (${totalAppts})</button>
     </div>
   `;
 
   if (filtered.length === 0) {
-    listEl.innerHTML = tabsHtml + `<div class="empty-state" style="padding:24px 10px"><div class="empty-state-icon" style="font-size:28px;margin-bottom:6px;color:var(--gold)"><i class="bi bi-bell-slash"></i></div><div style="font-size:12px;color:var(--text-muted)">No ${currentNotifFilter !== 'all' ? currentNotifFilter : ''} notifications found.</div></div>`;
+    listEl.innerHTML = tabsHtml + `<div class="empty-state" style="padding:24px 10px;text-align:center"><div class="empty-state-icon" style="font-size:28px;margin-bottom:6px;color:var(--gold)"><i class="bi bi-bell-slash"></i></div><div style="font-size:12px;color:var(--muted)">No ${currentNotifFilter !== 'all' ? currentNotifFilter : ''} notifications found.</div></div>`;
     return;
   }
 
@@ -3664,37 +3659,37 @@ function renderNotificationsView() {
     const dateStr = n.createdAt ? new Date(n.createdAt).toLocaleDateString("en-PH", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "N/A";
     
     let tierBadge = "";
-    let borderAccent = isUnread ? "var(--gold)" : "var(--border)";
+    let borderAccent = isUnread ? "var(--gold)" : "var(--line2)";
 
     if (n.severity === "critical") {
-      tierBadge = `<span class="badge" style="background:rgba(248,113,113,0.18);color:var(--red);font-size:9.5px"><i class="bi bi-exclamation-octagon-fill"></i> CRITICAL URGENT</span>`;
-      borderAccent = "var(--red)";
+      tierBadge = `<span class="chip red" style="font-size:9.5px"><i class="bi bi-exclamation-octagon-fill"></i> CRITICAL</span>`;
+      borderAccent = "var(--red-tx)";
     } else if (n.severity === "warning") {
-      tierBadge = `<span class="badge" style="background:rgba(251,191,36,0.18);color:var(--amber);font-size:9.5px"><i class="bi bi-clock-fill"></i> DEADLINE WARNING</span>`;
-      borderAccent = "var(--amber)";
+      tierBadge = `<span class="chip gold" style="font-size:9.5px"><i class="bi bi-clock-fill"></i> DEADLINE</span>`;
+      borderAccent = "var(--gold)";
     } else if (n.severity === "notice") {
-      tierBadge = `<span class="badge" style="background:rgba(52,211,153,0.18);color:var(--green);font-size:9.5px"><i class="bi bi-calendar2-week"></i> ADVANCE NOTICE</span>`;
+      tierBadge = `<span class="chip green" style="font-size:9.5px"><i class="bi bi-calendar2-week"></i> NOTICE</span>`;
     } else if (n.category === "hearing") {
-      tierBadge = `<span class="badge" style="background:rgba(99,102,241,0.18);color:var(--violet);font-size:9.5px"><i class="bi bi-bank"></i> COURT APPEARANCE</span>`;
+      tierBadge = `<span class="chip blue" style="font-size:9.5px"><i class="bi bi-bank"></i> HEARING</span>`;
     }
 
     let actions = "";
     if (n.type === "appointment_request" && n.appointmentStatus === "pending") {
       actions = `
         <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
-          <button class="btn btn-primary btn-sm" style="padding:4px 8px;font-size:10px" onclick="event.stopPropagation(); acceptAppointmentRequest('${n.id}', '${n.relatedId}')"><i class="bi bi-check2"></i> Accept</button>
+          <button class="btn gold btn-sm" style="padding:4px 8px;font-size:10px" onclick="event.stopPropagation(); acceptAppointmentRequest('${n.id}', '${n.relatedId}')"><i class="bi bi-check2"></i> Accept</button>
           <button class="btn btn-danger btn-sm" style="padding:4px 8px;font-size:10px" onclick="event.stopPropagation(); declineAppointmentRequest('${n.id}', '${n.relatedId}')"><i class="bi bi-x"></i> Decline</button>
           <button class="btn btn-secondary btn-sm" style="padding:4px 8px;font-size:10px" onclick="event.stopPropagation(); handleNotifClick('${n.id}', '${n.type}', '${n.relatedId}', '${n.fromUid}', '${escHtml(n.fromName)}')"><i class="bi bi-chat-dots-fill" style="color:var(--gold)"></i> Chat</button>
         </div>
       `;
     } else if (n.type === "appointment_request") {
       const statusText = (n.appointmentStatus || "").toUpperCase();
-      const colorVal = n.appointmentStatus === "accepted" ? "var(--green)" : "var(--red)";
+      const colorVal = n.appointmentStatus === "accepted" ? "var(--green)" : "var(--red-tx)";
       actions = `<div style="font-size:10px;font-weight:700;color:${colorVal};margin-top:6px"><i class="bi bi-circle-fill" style="font-size:7px;margin-right:3px"></i>PROPOSAL ${statusText}</div>`;
     } else if (n.type === "case_due" && n.relatedId) {
       actions = `
         <div style="display:flex;gap:6px;margin-top:6px">
-          <button class="btn btn-primary btn-sm" style="padding:3px 8px;font-size:10.5px" onclick="event.stopPropagation(); handleNotifClick('${n.id}', '${n.type}', '${n.relatedId}', '', '')"><i class="bi bi-folder-symlink-fill"></i> Open Case File</button>
+          <button class="btn gold btn-sm" style="padding:3px 8px;font-size:10.5px" onclick="event.stopPropagation(); handleNotifClick('${n.id}', '${n.type}', '${n.relatedId}', '', '')"><i class="bi bi-folder-symlink-fill"></i> Open Case File</button>
         </div>
       `;
     } else if (n.type === "availability_request" || n.type === "availability_confirmed") {
@@ -3706,18 +3701,18 @@ function renderNotificationsView() {
     }
 
     return `
-      <div class="doc-item" onclick="handleNotifClick('${n.id}', '${n.type}', '${n.relatedId}', '${n.fromUid}', '${escHtml(n.fromName)}')" style="border-left: 3.5px solid ${borderAccent}; background: ${isUnread ? 'var(--surface2)' : 'transparent'}; margin-bottom: 8px; padding: 10px 12px; font-size: 12px; cursor: pointer;">
+      <div class="doc-item" onclick="handleNotifClick('${n.id}', '${n.type}', '${n.relatedId}', '${n.fromUid}', '${escHtml(n.fromName)}')" style="border-left: 3.5px solid ${borderAccent}; background: ${isUnread ? 'var(--inset)' : 'transparent'}; margin-bottom: 8px; padding: 10px 12px; font-size: 12px; cursor: pointer; border-radius:10px">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;width:100%">
           <div style="flex:1;min-width:0;padding-right:6px">
             <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap">
               ${tierBadge}
-              <span style="font-size:10px;color:var(--text-dim)">${dateStr}</span>
+              <span style="font-size:10px;color:var(--muted)">${dateStr}</span>
             </div>
-            <div style="font-weight:700;font-size:12.5px;color:var(--text);margin-bottom:2px">${escHtml(n.title)}</div>
-            <div style="font-size:11.5px;color:var(--text-muted);line-height:1.4">${escHtml(n.message)}</div>
+            <div style="font-weight:700;font-size:12.5px;color:var(--head);margin-bottom:2px">${escHtml(n.title)}</div>
+            <div style="font-size:11.5px;color:var(--muted);line-height:1.4">${escHtml(n.message)}</div>
             ${actions}
           </div>
-          ${isUnread ? '<button class="btn btn-ghost" style="font-size:10px;padding:2px 6px;flex-shrink:0" onclick="event.stopPropagation(); markNotificationRead(\'' + n.id + '\')">Mark read</button>' : ""}
+          ${isUnread ? '<button class="btn btn-ghost btn-sm" style="font-size:10px;padding:2px 6px;flex-shrink:0" onclick="event.stopPropagation(); markNotificationRead(\'' + n.id + '\')">Mark read</button>' : ""}
         </div>
       </div>
     `;
@@ -3933,10 +3928,10 @@ window.loadExplorerFiles = async function() {
   }
 
   if (!hasValidToken()) {
-    listEl.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted)">
+    listEl.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted)">
       <div style="font-size:28px;margin-bottom:8px;color:var(--gold)"><i class="bi bi-cloud-slash"></i></div>
-      <div style="font-size:13px;font-weight:600">Google Drive Session Expired</div>
-      <div style="font-size:11px;margin-top:4px">Please re-authenticate under My Settings to view file explorer records.</div>
+      <div style="font-size:13px;font-weight:700;color:var(--head)">Google Drive Session Expired</div>
+      <div style="font-size:11.5px;margin-top:4px">Please re-authenticate under My Settings to view file explorer records.</div>
     </div>`;
     if (emptyEl) emptyEl.classList.add("hidden");
     return;
@@ -3980,7 +3975,7 @@ window.loadExplorerFiles = async function() {
       const icon = isFolder 
         ? `<i class="bi bi-folder-fill" style="color:var(--gold);font-size:32px"></i>` 
         : (f.name.toLowerCase().endsWith(".pdf") 
-          ? `<i class="bi bi-file-earmark-pdf-fill" style="color:var(--red);font-size:32px"></i>`
+          ? `<i class="bi bi-file-earmark-pdf-fill" style="color:var(--red-tx);font-size:32px"></i>`
           : `<i class="bi bi-file-earmark-text-fill" style="color:var(--gold);font-size:32px"></i>`);
 
       const onClickAction = isFolder 
@@ -3990,13 +3985,13 @@ window.loadExplorerFiles = async function() {
       const sizeText = f.size ? (f.size / (1024 * 1024)).toFixed(2) + " MB" : "";
 
       return `
-        <div style="min-width:0;max-width:100%;overflow:hidden;position:relative;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px 10px;text-align:center;cursor:pointer;transition:all 0.2s" onmouseenter="this.style.borderColor='var(--gold-border)';this.style.background='var(--surface3)'" onmouseleave="this.style.borderColor='var(--border)';this.style.background='var(--surface2)'">
+        <div style="min-width:0;max-width:100%;overflow:hidden;position:relative;background:var(--inset);border:1px solid var(--line2);border-radius:12px;padding:16px 12px;text-align:center;cursor:pointer;transition:all 0.15s" onmouseenter="this.style.borderColor='var(--gold-bd)';this.style.background='var(--navhov)'" onmouseleave="this.style.borderColor='var(--line2)';this.style.background='var(--inset)'">
           <div ${onClickAction} style="min-width:0;max-width:100%;overflow:hidden">
             <div style="margin-bottom:8px">${icon}</div>
-            <div style="font-size:12.5px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;display:block" title="${escHtml(f.name)}">${escHtml(f.name)}</div>
-            ${sizeText ? '<div style="font-size:11px;color:var(--text-dim);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + sizeText + '</div>' : ""}
+            <div style="font-size:13px;font-weight:700;color:var(--head);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;display:block" title="${escHtml(f.name)}">${escHtml(f.name)}</div>
+            ${sizeText ? '<div style="font-size:11px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + sizeText + '</div>' : ""}
           </div>
-          <button onclick="event.stopPropagation(); adminDeleteDriveExplorerFile('${f.id}', '${f.name.replace(/'/g, "\\'")}')" style="position:absolute;top:6px;right:6px;background:none;border:none;color:var(--red);font-size:14px;cursor:pointer;padding:4px;border-radius:4px;opacity:0.6;transition:opacity 0.2s" title="Delete file from Google Drive">
+          <button onclick="event.stopPropagation(); adminDeleteDriveExplorerFile('${f.id}', '${f.name.replace(/'/g, "\\'")}')" style="position:absolute;top:6px;right:6px;background:none;border:none;color:var(--red-tx);font-size:14px;cursor:pointer;padding:4px;border-radius:4px;opacity:0.6;transition:opacity 0.2s" title="Delete file from Google Drive">
             <i class="bi bi-trash3"></i>
           </button>
         </div>
@@ -4005,9 +4000,9 @@ window.loadExplorerFiles = async function() {
 
   } catch (err) {
     listEl.innerHTML = `
-      <div style="grid-column:1/-1;text-align:center;padding:30px 16px;color:var(--text-muted)">
+      <div style="grid-column:1/-1;text-align:center;padding:30px 16px;color:var(--muted)">
         <div style="font-size:28px;margin-bottom:8px;color:var(--amber)"><i class="bi bi-exclamation-triangle-fill"></i></div>
-        <div style="font-size:13px;font-weight:600;color:var(--text)">Google Drive API Notice</div>
+        <div style="font-size:13px;font-weight:700;color:var(--head)">Google Drive API Notice</div>
         <div style="font-size:11.5px;margin-top:6px;line-height:1.5">Click Open in Google Drive to view files directly.</div>
       </div>
     `;
@@ -4053,9 +4048,9 @@ function renderExplorerBreadcrumbs() {
   el.innerHTML = explorerBreadcrumbs.map((b, idx) => {
     const isLast = idx === explorerBreadcrumbs.length - 1;
     if (isLast) {
-      return '<span style="color:var(--gold)"><i class="bi bi-folder-fill" style="margin-right:4px"></i>' + escHtml(b.name) + '</span>';
+      return '<span style="color:var(--goldtxt)"><i class="bi bi-folder-fill" style="margin-right:4px"></i>' + escHtml(b.name) + '</span>';
     }
-    return `<span onclick="navigateBreadcrumb(${idx})" style="cursor:pointer;color:var(--text-muted);text-decoration:underline">${escHtml(b.name)}</span> <span style="font-size:11px;opacity:0.4">/</span>`;
+    return `<span onclick="navigateBreadcrumb(${idx})" style="cursor:pointer;color:var(--muted);text-decoration:underline">${escHtml(b.name)}</span> <span style="font-size:11px;opacity:0.4">/</span>`;
   }).join(" ");
 }
 
